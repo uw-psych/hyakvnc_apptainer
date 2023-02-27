@@ -1,0 +1,83 @@
+Bootstrap: docker
+From: rockylinux/rockylinux
+
+%files
+    xfce4_config/xfce4-screensaver.xml /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-screensaver.xml
+    xfce4_config/xfce4-power-manager.xml /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-power-manager.xml.tmp
+
+# Install xfce and dependencies to run EDA tools
+%post
+    yum --exclude=filesystem\* update -y
+    dnf install -y epel-release dnf-plugins-core redhat-lsb-core
+    dnf config-manager --set-enabled powertools
+    rpm --import https://packages.microsoft.com/keys/microsoft.asc
+    cat <<EOF > /etc/yum.repos.d/vscode.repo
+[code]
+name=Visual Studio Code
+baseurl=https://packages.microsoft.com/yumrepos/vscode
+enabled=1
+gpgcheck=1
+gpgkey=https://packages.microsoft.com/keys/microsoft.asc
+EOF
+    yum --exclude=filesystem\* update -y
+    # Install commonly used tools
+    dnf group install -y "Development Tools"
+    yum install -y autoconf automake texinfo
+    yum install -y gawk gperf patchutils
+    yum install -y ksh tcsh bash man emacs vim nano tree strace
+    yum install -y wget curl htop
+    yum install -y flex bison time bc binutils gdb gcc gcc-c++ file
+    yum install -y python3 python3-libs python3-pip python3-setuptools
+    yum install -y python2 python2-libs python2-pip python2-setuptools
+    yum install -y java-11-openjdk
+    # Install libraries
+    yum install -y glibc glibc.i686 glibc-devel glib2 glib2-devel glib2.i686
+    yum install -y libmpc-devel mpfr-devel gmp-devel libtool zlib-devel
+    yum install -y libpng12 libXpm freetype-devel freetype fontconfig
+    yum install -y libomp-devel libgomp libseccomp readline-devel
+    yum install -y ncurses-compat-libs ncurses ncurses-libs tcl-devel
+    yum install -y mesa-libGL
+    yum install -y elfutils-libelf libmng libnsl libnsl.i686 openssl-libs
+    yum install -y apr apr-util pulseaudio-libs libstdc++ libstdc++-devel libSM
+    yum install -y numactl-libs
+    yum install -y libICE libjpeg-turbo libtiff libxml++ libxml2 libxml2-devel
+    yum install -y libdb libdb.i686 libdb-devel libdb-utils libdb-cxx
+    yum install -y xorg-x11-drv-dummy xorg-x11-drivers xorg-x11-xinit \
+        xorg-x11-utils xorg-x11-font-utils xorg-x11-fonts-100dpi \
+        xorg-x11-fonts-ISO8859-1-100dpi xorg-x11-fonts-ISO8859-1-75dpi \
+        xorg-x11-fonts-Type1 xorg-x11-fonts-misc xorg-x11-xkb-utils \
+        xorg-x11-apps
+    yum install -y libXext libXext-devel libXi libXi-devel libXmu libXmu-devel
+    yum install -y libXcomposite libXcomposite-devel libXft libXScrnSaver
+    yum install -y libxcb libxcb-devel libX11-xcb xcb-util \
+        xcb-util-wm xcb-util-renderutil
+    yum install -y libXrender libXrandr libXt libXtst libXp
+    yum install -y libXext.i686 libXrender.i686 libXft.i686 libXtst.i686 \
+        libXi.i686
+    # Install XFCE and GUI programs
+    dnf group install -y Xfce
+    yum install -y xfce-polkit
+    yum install -y tigervnc tigervnc-server tigervnc-server-module vinagre
+    yum install -y firefox code gtkwave evince
+    yum install -y https://download-ib01.fedoraproject.org/pub/epel/7/x86_64/Packages/t/tkcvs-8.2.3-1.el7.noarch.rpm
+    # Disable display power management
+    cd /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/
+    mv xfce4-power-manager.xml.tmp xfce4-power-manager.xml
+    # Workaround: Disable xfce polkit since it launches with an error
+    rm /etc/xdg/autostart/xfce-polkit.desktop
+    # Set locale
+    yum install -y glibc-langpack-en
+
+# Set PATH and envrionment variables
+%environment
+    # Fix "cannot find crti.o" bug
+    export LIBRARY_PATH=/usr/lib:/usr/lib64
+    export DBUS_SESSION_BUS_ADDRESS=""
+    # Set locale
+    export LANG='en_US.UTF-8'
+    export LANGUAGE='en_US:en'
+    export LC_ALL='C'
+
+%labels
+    Author hansemro@outlook.com
+    Version v0.1-RockyLinux

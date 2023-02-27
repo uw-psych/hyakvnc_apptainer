@@ -1,0 +1,16 @@
+#!/bin/bash
+unset SESSION_MANAGER
+unset DBUS_SESSION_BUS_ADDRESS
+
+[ -x /etc/vnc/xstartup ] && exec /etc/vnc/xstartup
+[ -r $HOME/.Xresources ] && xrdb $HOME/.Xresources
+# disable screensaver and power management
+xset -dpms &
+xset s noblank &
+xset s off &
+
+xsetroot -solid grey
+# vncconfig window enables clipboard sharing
+vncconfig -iconic &
+# start desktop environment
+startxfce4 ~/.xsession-errors 2>&1 &
