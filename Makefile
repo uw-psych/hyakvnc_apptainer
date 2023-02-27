@@ -2,7 +2,7 @@
 SHELL:=/usr/bin/env bash
 CONT_NAME ?= rockylinux
 
-# Usage: $ make [clean]
+# Usage: $ make [CONT_NAME=<rockylinux|ubuntu20.04|centos7|etc>] [clean]
 
 all: $(CONT_NAME)/$(CONT_NAME).sif
 
