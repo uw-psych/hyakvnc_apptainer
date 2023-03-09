@@ -19,6 +19,8 @@ We will need to build the container on an interactive work node:
 
 ```bash
 salloc -A <mygroup> -p <mypartition> -N 1 -n2 --mem=10G --time=2:00:00
+# connect to allocated node. Example: ssh n3300
+ssh <node_name>
 module load apptainer/1.1.5
 ```
 
