@@ -5,7 +5,6 @@ From: rockylinux/rockylinux
     xfce4_config/xfce4-screensaver.xml /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-screensaver.xml
     xfce4_config/xfce4-power-manager.xml /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-power-manager.xml.tmp
 
-# Install xfce and dependencies to run EDA tools
 %post
     yum --exclude=filesystem\* update -y
     dnf install -y epel-release dnf-plugins-core redhat-lsb-core
