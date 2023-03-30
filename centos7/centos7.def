@@ -38,10 +38,12 @@ EOF
     yum install -y libpng12 libXpm freetype-devel freetype fontconfig motif
     yum install -y libomp-devel libgomp libseccomp compat-readline43
     yum install -y ncurses-compat-libs ncurses ncurses-libs tcl-devel
-    yum install -y mesa-libGL mesa-libGLU mesa-dri-drivers
+    yum install -y mesa-libGL-devel mesa-libGL mesa-libGLU mesa-dri-drivers
     yum install -y elfutils-libelf libmng libnsl libnsl.i686 openssl-libs
     yum install -y apr apr-util pulseaudio-libs libstdc++ libstdc++-devel libSM
     yum install -y numactl-libs expat expat-devel compat-db47
+    yum install -y libgfortran-static lapack-devel \
+        lapack-static blas-devel blas-static
     yum install -y libICE libjpeg-turbo libtiff libxml++ libxml2 libxml2-devel
     yum install -y libdb libdb.i686 libdb-devel libdb-utils libdb-cxx
     yum install -y xorg-x11-drv-dummy xorg-x11-drivers xorg-x11-xinit \
@@ -51,7 +53,7 @@ EOF
         xorg-x11-apps xorg-x11-server-Xvfb
     yum install -y libXext libXext-devel libXi libXi-devel libXmu libXmu-devel
     yum install -y libXcomposite libXcomposite-devel libXft libXScrnSaver
-    yum install -y libxcb libxcb-devel libX11-xcb xcb-util \
+    yum install -y libxcb libxcb-devel libX11-devel libX11-xcb xcb-util \
         xcb-util-wm xcb-util-renderutil
     yum install -y libXrender libXrandr libXt libXtst libXp
     yum install -y libXext.i686 libXrender.i686 libXft.i686 libXtst.i686 \
