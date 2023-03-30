@@ -35,7 +35,7 @@ EOF
     yum install -y libpng12 libXpm freetype-devel freetype fontconfig
     yum install -y libomp-devel libgomp libseccomp readline-devel
     yum install -y ncurses-compat-libs ncurses ncurses-libs tcl-devel
-    yum install -y mesa-libGL
+    yum install -y mesa-libGL mesa-libGLU
     yum install -y elfutils-libelf libmng libnsl libnsl.i686 openssl-libs
     yum install -y apr apr-util pulseaudio-libs libstdc++ libstdc++-devel libSM
     yum install -y numactl-libs
