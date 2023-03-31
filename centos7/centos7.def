@@ -62,7 +62,6 @@ EOF
     dnf group install -y Xfce
     yum install -y xfce-polkit
     yum install -y tigervnc tigervnc-server tigervnc-server-module vinagre
-    yum install -y xrdp x2goserver x2goserver-xsession
     yum install -y firefox code gtkwave evince
     yum install -y https://download-ib01.fedoraproject.org/pub/epel/7/x86_64/Packages/t/tkcvs-8.2.3-1.el7.noarch.rpm
     # Disable display power management
