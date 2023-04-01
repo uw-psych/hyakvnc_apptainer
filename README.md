@@ -10,7 +10,6 @@ Available Apptainers:
 
 - ubuntu20.04
 - rockylinux
-- centos7
 
 ## Build Steps
 
