@@ -16,7 +16,11 @@ all: $(CONT_NAME)/$(CONT_NAME).sif
 	@echo "=================="
 	# Building in /tmp is a workaround for builds failing while in
 	# /gscratch/<account>/
-	APPTAINER_BINDPATH="" SINGULARITY_BINDPATH="" apptainer build \
+	APPTAINER_BIND="" \
+		SINGULARITY_BIND="" \
+		APPTAINER_BINDPATH="" \
+		SINGULARITY_BINDPATH="" \
+		apptainer build \
 			--fakeroot \
 			$(TMP_DIR)/$(CONT_NAME).sif \
 			$(TMP_DIR)/$(CONT_NAME).def

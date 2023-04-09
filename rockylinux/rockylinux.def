@@ -31,6 +31,8 @@ EOF
     yum install -y java-11-openjdk
     # Install dependencies for Lmod
     yum install -y lua lua-devel lua-json lua-lpeg lua-posix lua-term tcl
+    # Install dependencies for building with apptainer
+    yum install -y libuuid-devel libseccomp-devel squashfs-tools cryptsetup fakeroot
     # Install libraries
     yum install -y glibc glibc.i686 glibc-devel glib2 glib2-devel glib2.i686
     yum install -y libmpc-devel mpfr-devel gmp-devel libtool zlib-devel
