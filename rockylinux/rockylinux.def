@@ -23,8 +23,8 @@ EOF
     dnf group install -y "Development Tools"
     yum install -y autoconf automake texinfo
     yum install -y gawk gperf patchutils
-    yum install -y ksh tcsh bash man emacs vim nano tree strace
-    yum install -y wget curl htop
+    yum install -y ksh tcsh bash bash-completion man emacs vim nano tree strace
+    yum install -y wget curl htop rsync
     yum install -y flex bison time bc binutils gdb gcc gcc-c++ file
     yum install -y python3 python3-libs python3-pip python3-setuptools
     yum install -y python2 python2-libs python2-pip python2-setuptools
