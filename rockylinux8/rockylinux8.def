@@ -1,5 +1,5 @@
 Bootstrap: docker
-From: rockylinux/rockylinux
+From: rockylinux:8
 
 %files
     xfce4_config/xfce4-screensaver.xml /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-screensaver.xml
@@ -85,4 +85,4 @@ EOF
 
 %labels
     Author hansemro@outlook.com
-    Version v0.1-RockyLinux
+    Version v0.1-RockyLinux-8

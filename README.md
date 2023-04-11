@@ -9,7 +9,7 @@ These Apptainer containers are used by `hyakvnc.py` to start a VNC session.
 Available Apptainers:
 
 - ubuntu20.04
-- rockylinux
+- rockylinux8
 
 ## Build Steps
 
