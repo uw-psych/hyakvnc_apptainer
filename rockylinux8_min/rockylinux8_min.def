@@ -1,0 +1,44 @@
+Bootstrap: docker
+From: rockylinux:8
+
+%files
+    xfce4_config/xfce4-screensaver.xml /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-screensaver.xml
+    xfce4_config/xfce4-power-manager.xml /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-power-manager.xml.tmp
+
+%post
+    yum --exclude=filesystem\* update -y
+    dnf install -y epel-release dnf-plugins-core redhat-lsb-core
+    dnf config-manager --set-enabled powertools
+    yum --exclude=filesystem\* update -y
+    # Install dependencies for Lmod
+    yum install -y lua lua-devel lua-json lua-lpeg lua-posix lua-term tcl
+    # Install XFCE and GUI programs
+    dnf group install -y Xfce
+    yum install -y xfce-polkit
+    yum install -y xorg-x11-drv-dummy xorg-x11-drivers xorg-x11-xinit \
+        xorg-x11-utils xorg-x11-font-utils xorg-x11-fonts-100dpi \
+        xorg-x11-fonts-ISO8859-1-100dpi xorg-x11-fonts-ISO8859-1-75dpi \
+        xorg-x11-fonts-Type1 xorg-x11-fonts-misc xorg-x11-xkb-utils \
+        xorg-x11-apps
+    yum install -y tigervnc-server tigervnc-server-module
+    # Disable display power management
+    cd /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/
+    mv xfce4-power-manager.xml.tmp xfce4-power-manager.xml
+    # Workaround: Disable xfce polkit since it launches with an error
+    rm /etc/xdg/autostart/xfce-polkit.desktop
+    # Set locale
+    yum install -y glibc-langpack-en
+
+# Set PATH and envrionment variables
+%environment
+    # Fix "cannot find crti.o" bug
+    export LIBRARY_PATH=/usr/lib:/usr/lib64
+    export DBUS_SESSION_BUS_ADDRESS=""
+    # Set locale
+    export LANG='en_US.UTF-8'
+    export LANGUAGE='en_US:en'
+    export LC_ALL='C'
+
+%labels
+    Author hansemro@outlook.com
+    Version v0.1-RockyLinux-8
