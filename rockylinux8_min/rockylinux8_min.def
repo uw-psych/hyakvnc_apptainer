@@ -12,6 +12,9 @@ From: rockylinux:8
     yum --exclude=filesystem\* update -y
     # Install dependencies for Lmod
     yum install -y lua lua-devel lua-json lua-lpeg lua-posix lua-term tcl
+    # Install dependencies for building with apptainer
+    yum install -y e2fsprogs fakeroot fuse-overlayfs fuse3-libs libseccomp \
+        glibc zlib squashfs-tools squashfuse cryptsetup
     # Install XFCE and GUI programs
     dnf group install -y Xfce
     yum install -y xfce-polkit
