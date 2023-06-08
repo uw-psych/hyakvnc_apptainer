@@ -1,6 +1,6 @@
 .PHONY : all clean
 SHELL:=/usr/bin/env bash
-CONT_NAME ?= rockylinux
+CONT_NAME ?= rockylinux8
 
 # Usage: $ make [CONT_NAME=<rockylinux8|ubuntu20.04|etc>] [clean]
 
