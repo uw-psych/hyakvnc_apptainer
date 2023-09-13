@@ -9,8 +9,8 @@ From: ../ubuntu22.04_interactive/ubuntu22.04_interactive.sif
 
 %post
 	export DEBIAN_FRONTEND=noninteractive
-	export LC_ALL=C.UTF-8
-
+	export LC_ALL='C.UTF-8'
+	export LANG='C.UTF-8'
 	apt-get update -qq
 	apt-get install -y -qq \
 		xorg \
@@ -25,17 +25,20 @@ From: ../ubuntu22.04_interactive/ubuntu22.04_interactive.sif
 		dbus-x11
 
 	# Clean up packages:
-	apt-get clean -y && rm -rf /var/lib/apt/lists/*
+	apt-get clean -y -qq && rm -rf /var/lib/apt/lists/*
 
 	# Configure TigerVNC to work without password (preferable on SSH):
 	echo '$SecurityTypes = "None";' >> /etc/tigervnc/vncserver-config-mandatory
 	
-
 %apprun vncserver
-	exec vncserver "${@}"
+	vncserver -list -cleanstale && exec vncserver -verbose "${@}"
+
+%apprun vncserver-cleanstale
+	vncserver -list -cleanstale "${@}"
 
 %runscript
-	exec vncserver "${@}"
+	vncserver -list -cleanstale && exec vncserver -verbose "${@}"
 
 %startscript
-	exec vncserver "${@}"
+	vncserver -list -cleanstale && exec vncserver -verbose "${@}"
+

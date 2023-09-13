@@ -61,4 +61,4 @@ SUBDIRS     ?= $(patsubst %/Singularity,%,$(wildcard */Singularity))
 .PHONY: $(SUBDIRS)
 
 $(SUBDIRS):
-	cd $@ && $(APPTAINER_BIN) build --fakeroot --fix-perms $@.sif Singularity 
+	cd $@ && $(APPTAINER_BIN) build $@.sif Singularity 

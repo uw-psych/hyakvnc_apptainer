@@ -13,10 +13,10 @@ From: ../ubuntu22.04_graphical/ubuntu22.04_graphical.sif
 
 	apt-get update -qq
 	
-	apt-get install -y -q --no-install-recommends \
+	apt-get install -y -qq --no-install-recommends \
 		xfce4 \
 		xfce4-terminal \
-		desktop-base \
+		fonts-liberation \
 		xfce4-whiskermenu-plugin \
 		xfce4-taskmanager \
 		xfce4-indicator-plugin \
@@ -31,8 +31,9 @@ From: ../ubuntu22.04_graphical/ubuntu22.04_graphical.sif
 		ffmpegthumbnailer
 
 	# Clean up packages:
-	apt-get clean -y && rm -rf /var/lib/apt/lists/*
+	apt-get clean -qq -y && rm -rf /var/lib/apt/lists/*
 
-	# Add xterm to xstatup
+	# Set XFCE as default:
 	update-alternatives --set x-terminal-emulator /usr/bin/xfce4-terminal.wrapper
 	update-alternatives --set x-session-manager /usr/bin/xfce4-session
+
