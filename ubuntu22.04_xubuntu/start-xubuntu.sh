@@ -2,7 +2,6 @@
 unset SESSION_MANAGER
 unset DBUS_SESSION_BUS_ADDRESS
 
-PATH=/usr/bin:/usr/sbin
 export XKL_XMODMAP_DISABLE=1 # disable keyboard layout switching
 
 export XDG_DATA_DIRS="/usr/share/xfce4:/usr/share/xubuntu:/usr/local/share:/usr/share:/var/lib/snapd/desktop:/usr/share"
@@ -13,7 +12,9 @@ export GDM_LANG=en_US.UTF-8
 export DESKTOP_SESSION=xubuntu
 export GDMSESSION=xubuntu
 export XDG_SESSION_DESKTOP=xubuntu
-PATH=/usr/bin:/usr/sbin
+PATH=/usr/local/bin:/usr/bin:/usr/sbin
+
+[ -r $HOME/.Xresources ] && xrdb $HOME/.Xresources
 
 # propagate to X sessions. It is important when user first
 # login, they decide on the initial xfce/xubuntu template settings.

@@ -59,14 +59,14 @@ From: ../ubuntu22.04_interactive/ubuntu22.04_interactive.sif
 	
 
 %apprun vncserver
-	vncserver -list -cleanstale && exec vncserver -verbose -fg "${@}"
+	vncserver -verbose -fg -PasswordFile /etc/vncpasswd-insecure.conf "${@}"
 
 %apprun vncserver-cleanstale
 	vncserver -list -cleanstale "${@}"
 
 %runscript
-	vncserver -list -cleanstale && exec vncserver -verbose -fg "${@}"
+	vncserver -verbose -fg -PasswordFile /etc/vncpasswd-insecure.conf "${@}"
 
 %startscript
-	vncserver -list -cleanstale && exec vncserver -verbose -fg "${@}"
+	vncserver -verbose -fg -PasswordFile /etc/vncpasswd-insecure.conf "${@}"
 
