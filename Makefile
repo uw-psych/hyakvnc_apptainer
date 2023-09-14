@@ -20,6 +20,10 @@ ANSI_UNDERLINE=\033[4m
 
 DATETIME_FORMAT := %(%Y-%m-%d %H:%M:%S)T
 
+ifeq (, $(shell which apptainer 2> /dev/null))
+$(error "No apptainer in $(PATH). Are you running on a login node? If so, allocate a compute node with salloc and run this there")
+endif
+
 .PHONY: help
 help:  ## Prints this usage.
 	@printf '$(ANSI_BOLD)$(ANSI_UNDERLINE)Recipes:$(ANSI_RESET)\n' && grep --no-filename -E '^[a-zA-Z0-9-]+:' $(MAKEFILE_LIST) 
