@@ -66,3 +66,4 @@ SUBDIRS     ?= $(patsubst %/Singularity,%,$(wildcard */Singularity))
 
 $(SUBDIRS):
 	cd $@ && $(APPTAINER_BIN) build $@.sif Singularity 
+

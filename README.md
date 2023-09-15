@@ -8,10 +8,13 @@ These Apptainer containers are used by `hyakvnc.py` to start a VNC session.
 
 Available Apptainers:
 
-- `ubuntu20.04_min`
-- `ubuntu20.04`
-- `rockylinux8_min`
-- `rockylinux8`
+- ~~`ubuntu20.04_min`~~
+- ~~`ubuntu20.04`~~
+- ~~`rockylinux8_min`~~
+- ~~``rockylinux8`~~
+- `ubuntu22.04_interactive`
+- `ubuntu22.04_xubuntu`
+
 
 Minimized/barebones container recipes, suffixed with `_min`, are provided with
 XFCE4, vncserver, and dependencies to run Lmod and build/run Apptainers.
