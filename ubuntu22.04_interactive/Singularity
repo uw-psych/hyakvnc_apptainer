@@ -1,0 +1,53 @@
+Bootstrap: docker
+From: ubuntu:22.04
+
+%help
+	This is an Apptainer container of Ubuntu 22.04 for interactive use.
+
+%labels
+	Maintainer altan@uw.edu
+	Version v0.0.1
+
+%environment
+	export DEBIAN_FRONTEND=noninteractive
+	export LC_ALL='en_US.UTF-8'
+	export LANG='en_US.UTF-8'
+	export TZ='America/Los_Angeles'
+
+%post
+	export DEBIAN_FRONTEND=noninteractive
+	export TZ='America/Los_Angeles'
+
+	apt-get update -qq
+
+	# Install basic tools:
+	apt-get install -y -q \
+		locales \
+		make \
+		nano \
+		vim \
+		bash-completion \
+		curl \
+		wget \
+		iproute2 \
+		netcat-openbsd \
+		less \
+		git \
+		net-tools
+	
+	# Configure default locale
+	echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
+	locale-gen en_US.utf8
+	/usr/sbin/update-locale LANG=en_US.UTF-8
+	export LC_ALL=en_US.UTF-8
+	export LANG=en_US.UTF-8
+
+	# Install GitHub CLI:
+	curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+	chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
+	echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+
+	apt-get update -qq && apt-get install -y -qq gh
+	# Clean up packages:
+	apt-get clean -y -qq && rm -rf /var/lib/apt/lists/*
+

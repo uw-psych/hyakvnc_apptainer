@@ -1,0 +1,18 @@
+#!/bin/bash
+unset SESSION_MANAGER
+unset DBUS_SESSION_BUS_ADDRESS
+PATH=/usr/bin:/usr/sbin
+export XKL_XMODMAP_DISABLE=1 # disable keyboard layout switching
+xset s noblank &
+xset s off &
+xsetroot -solid grey
+PATH=/usr/bin:/usr/sbin
+
+tigervncconfig -iconic &
+exec startxfce4
+
+
+
+
+
+

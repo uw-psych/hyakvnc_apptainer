@@ -1,0 +1,72 @@
+Bootstrap: localimage
+From: ../ubuntu22.04_interactive/ubuntu22.04_interactive.sif
+
+%help
+	This is an Apptainer container of Ubuntu 22.04 with X and TigerVNC installed.
+
+%labels
+	MAINTAINER "Altan Orhon - altan@uw.edu"
+
+%files
+	./*.sh /usr/local/bin
+
+%post
+	export DEBIAN_FRONTEND=noninteractive
+	export LC_ALL='C.UTF-8'
+	export LANG='C.UTF-8'
+	apt-get update -qq
+
+	apt-get install -y -q \
+		xterm \
+		tigervnc-standalone-server \
+		tigervnc-common \
+		tigervnc-xorg-extension \
+		tigervnc-tools \
+		dbus-x11 \
+		xserver-xorg-input-all \
+		at-spi2-core
+
+	apt-get install -y -q --no-install-recommends \
+		xubuntu-core \
+		fonts-liberation \
+		fonts-opensymbol \
+		fonts-ubuntu
+
+	apt-get install -y -q \
+		libfuse2 \
+		libnotify-bin \
+		xfce4-indicator-plugin \
+		xfce4-screenshooter \
+		xfce4-statusnotifier-plugin \
+		xfce4-terminal \
+		xfce4-whiskermenu-plugin \
+		xfce4-xkb-plugin \
+		xfce4-panel-profiles \
+		thunar-archive-plugin \
+		xarchiver \
+		ristretto \
+		mousepad \
+		tumbler \
+		gvfs-fuse
+
+	# Clean up packages:
+	apt-get clean -y -qq && rm -rf /var/lib/apt/lists/*
+
+	# Configure TigerVNC to work without password (fine on SSH) *and* with a password (required for macOS built-in VNC viewer):
+	echo password | vncpasswd -f > /etc/vncpasswd-insecure.conf
+	echo '$SecurityTypes = "None,VncAuth";' >> /etc/tigervnc/vncserver-config-defaults
+	echo '$vncPasswdFile = "/etc/vncpasswd-insecure.conf";' >> /etc/tigervnc/vncserver-config-defaults
+	echo '$vncStartup = "/usr/local/bin/start-xubuntu.sh";' >> /etc/tigervnc/vncserver-config-defaults
+
+%apprun vncserver
+	vncserver -verbose -fg -PasswordFile /etc/vncpasswd-insecure.conf "${@}"
+
+%apprun vncserver-cleanstale
+	vncserver -list -cleanstale "${@}"
+
+%runscript
+	vncserver -verbose -fg -PasswordFile /etc/vncpasswd-insecure.conf "${@}"
+
+%startscript
+	vncserver -verbose -fg -PasswordFile /etc/vncpasswd-insecure.conf "${@}"
+
