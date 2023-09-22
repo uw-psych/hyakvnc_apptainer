@@ -23,8 +23,9 @@ From: ../ubuntu22.04_interactive/ubuntu22.04_interactive.sif
 		tigervnc-xorg-extension \
 		tigervnc-tools \
 		dbus-x11 \
-		xserver-xorg-input-all
-	
+		xserver-xorg-input-all \
+		at-spi2-core
+
 	apt-get install -y -q --no-install-recommends \
 		xubuntu-core \
 		fonts-liberation \
@@ -56,7 +57,6 @@ From: ../ubuntu22.04_interactive/ubuntu22.04_interactive.sif
 	echo '$SecurityTypes = "None,VncAuth";' >> /etc/tigervnc/vncserver-config-defaults
 	echo '$vncPasswdFile = "/etc/vncpasswd-insecure.conf";' >> /etc/tigervnc/vncserver-config-defaults
 	echo '$vncStartup = "/usr/local/bin/start-xubuntu.sh";' >> /etc/tigervnc/vncserver-config-defaults
-	
 
 %apprun vncserver
 	vncserver -verbose -fg -PasswordFile /etc/vncpasswd-insecure.conf "${@}"
