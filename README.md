@@ -6,21 +6,19 @@ on UW Hyak Klone.
 
 These Apptainer containers are used by `hyakvnc.py` to start a VNC session.
 
-Available Apptainers:
+Available Apptainers and their descendants:
 
 - ~~`ubuntu20.04_min`~~
 - ~~`ubuntu20.04`~~
 - ~~`rockylinux8_min`~~
 - ~~``rockylinux8`~~
-- `ubuntu22.04_interactive`
-- `ubuntu22.04_xubuntu`
+- `ubuntu22.04_interactive`:
+	- `ubuntu22.04_xubuntu`
 
 
 Minimized/barebones container recipes, suffixed with `_min`, are provided with
 XFCE4, vncserver, and dependencies to run Lmod and build/run Apptainers.
 
-Standard recipes, without any suffix, provide additional tools and libraries
-required for **some** programs.
 
 These container recipes are provided to serve as examples and are meant to be
 modified to user needs.
@@ -31,18 +29,26 @@ Following guidance from [Hyak's Documentation](https://hyak.uw.edu/docs/tools/co
 We will need to build the container on an interactive work node:
 
 ```bash
-salloc -A <mygroup> -p <mypartition> -N 1 -n2 --mem=10G --time=2:00:00
-# connect to allocated node. Example: ssh n3300
-ssh <node_name>
-module load apptainer/1.1.5
+salloc -A <mygroup> -p <mypartition> c -8 --mem=32G --time=2:00:00
 ```
 
 Navigate to this directory then run `make` with the name of container specified:
 
 ```bash
 cd /path/to/hyak_vnc_apptainer
-make CONT_NAME=rockylinux
+make ubuntu22.04_interactive 
+```
+
+Some containers depend on others. To make them, you must first make their
+predecessors. For example, `ubuntu22.04_xubuntu` relies on
+`ubuntu22.04_interactive`, and requires `make` to be called with that as its
+argument before it can proceed
+
+```bash
+cd /path/to/hyak_vnc_apptainer
+make ubuntu22.04_xubuntu
 ```
 
 If successful, a container file ending with .sif can be found in the directory
 with the same name as the container.
+
