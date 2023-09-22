@@ -4,7 +4,7 @@ Sample VNC Apptainer
 This repo contains sample Apptainer recipes along with a Makefile to build one
 on UW Hyak Klone.
 
-These Apptainer containers are used by `hyakvnc.py` to start a VNC session.
+These Apptainer containers are used by `hyakvnc` to start a VNC session.
 
 Available Apptainers and their descendants:
 
@@ -18,7 +18,6 @@ Available Apptainers and their descendants:
 
 Minimized/barebones container recipes, suffixed with `_min`, are provided with
 XFCE4, vncserver, and dependencies to run Lmod and build/run Apptainers.
-
 
 These container recipes are provided to serve as examples and are meant to be
 modified to user needs.
