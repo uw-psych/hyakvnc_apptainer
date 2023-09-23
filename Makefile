@@ -24,10 +24,14 @@ ifeq (, $(shell which apptainer 2> /dev/null))
 $(error "No apptainer in $(PATH). Are you running on a login node? If so, allocate a compute node with salloc and run this there")
 endif
 
+
+APPTAINER_BIN ?= $(shell command -v apptainer 2>/dev/null || command -v singularity 2>/dev/null)
+SUBDIRS     ?= $(patsubst %/Singularity,%,$(wildcard */Singularity))
+
+
 .PHONY: help
 help:  ## Prints this usage.
-	@printf '$(ANSI_BOLD)$(ANSI_UNDERLINE)Recipes:$(ANSI_RESET)\n' && grep --no-filename -E '^[a-zA-Z0-9-]+:' $(MAKEFILE_LIST) 
-
+	@printf '== Recipes ==\n' && grep --no-filename -E '^[a-zA-Z0-9-]+:' $(MAKEFILE_LIST) && echo '\n== Images ==' && echo $(SUBDIRS) | tr ' ' '\n' 
 # see https://www.gnu.org/software/make/manual/html_node/Origin-Function.html
 MAKEFILE_ORIGINS := \
 	default \
@@ -59,11 +63,10 @@ printvar-%: ## Print one Makefile variable.
 	@echo '   value = $(value  $*)'
 
 
-APPTAINER_BIN ?= apptainer
-SUBDIRS     ?= $(patsubst %/Singularity,%,$(wildcard */Singularity))
+$(SUBDIRS):
+	cd $@ && $(APPTAINER_BIN) build $@.sif Singularity 
 
 .PHONY: $(SUBDIRS)
 
-$(SUBDIRS):
-	cd $@ && $(APPTAINER_BIN) build $@.sif Singularity 
+ubuntu22.04_xubuntu: ubuntu22.04_interactive
 
