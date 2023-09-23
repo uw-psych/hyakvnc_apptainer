@@ -1,5 +1,5 @@
 Bootstrap: localimage
-From: ../ubuntu22.04_interactive/ubuntu22.04_interactive.sif
+From: ../ubuntu22.04_interactive/ubuntu22
 
 %help
 	This is an Apptainer container of Ubuntu 22.04 with X and TigerVNC installed.
@@ -14,6 +14,7 @@ From: ../ubuntu22.04_interactive/ubuntu22.04_interactive.sif
 	export DEBIAN_FRONTEND=noninteractive
 	export LC_ALL='C.UTF-8'
 	export LANG='C.UTF-8'
+	export VNCSERVER_DEFAULT_PASSWORD='password'
 	apt-get update -qq
 
 	apt-get install -y -q \
@@ -22,6 +23,7 @@ From: ../ubuntu22.04_interactive/ubuntu22.04_interactive.sif
 		tigervnc-common \
 		tigervnc-xorg-extension \
 		tigervnc-tools \
+		novnc \
 		dbus-x11 \
 		xserver-xorg-input-all \
 		at-spi2-core
@@ -46,14 +48,13 @@ From: ../ubuntu22.04_interactive/ubuntu22.04_interactive.sif
 		xarchiver \
 		ristretto \
 		mousepad \
-		tumbler \
-		gvfs-fuse
+		tumbler
 
 	# Clean up packages:
 	apt-get clean -y -qq && rm -rf /var/lib/apt/lists/*
 
-	# Configure TigerVNC to work without password (fine on SSH) *and* with a password (required for macOS built-in VNC viewer):
-	echo password | vncpasswd -f > /etc/vncpasswd-insecure.conf
+	# Configure TigerVNC default password
+	echo "$VNCSERVER_DEFAULT_PASSWORD" | vncpasswd -f > /etc/vncpasswd-insecure.conf
 	echo '$SecurityTypes = "None,VncAuth";' >> /etc/tigervnc/vncserver-config-defaults
 	echo '$vncPasswdFile = "/etc/vncpasswd-insecure.conf";' >> /etc/tigervnc/vncserver-config-defaults
 	echo '$vncStartup = "/usr/local/bin/start-xubuntu.sh";' >> /etc/tigervnc/vncserver-config-defaults
@@ -61,12 +62,8 @@ From: ../ubuntu22.04_interactive/ubuntu22.04_interactive.sif
 %apprun vncserver
 	vncserver -verbose -fg -PasswordFile /etc/vncpasswd-insecure.conf "${@}"
 
-%apprun vncserver-cleanstale
-	vncserver -list -cleanstale "${@}"
-
 %runscript
 	vncserver -verbose -fg -PasswordFile /etc/vncpasswd-insecure.conf "${@}"
 
 %startscript
-	vncserver -verbose -fg -PasswordFile /etc/vncpasswd-insecure.conf "${@}"
-
+	vncserver -verbose -PasswordFile /etc/vncpasswd-insecure.conf "${@}"

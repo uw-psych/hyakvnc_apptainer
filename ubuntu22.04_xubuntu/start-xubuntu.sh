@@ -1,15 +1,11 @@
-
 #!/bin/bash
 unset SESSION_MANAGER
 unset DBUS_SESSION_BUS_ADDRESS
-PATH="$PATH:/usr/bin:/usr/sbin"
 export XKL_XMODMAP_DISABLE=1 # disable keyboard layout switching
-
 export XDG_DATA_DIRS="/usr/share/xfce4:/usr/share/xubuntu:/usr/local/share:/usr/share:/var/lib/snapd/desktop:/usr/share"
 export XDG_CONFIG_DIRS="/etc/xdg/xdg-xubuntu:/etc/xdg"
-
-export LANG=en_US.UTF-8
-export GDM_LANG=en_US.UTF-8
+export LANG=${LANG:-C.UTF-8}
+export GDM_LANG=${LANG:-C.UTF-8}
 export DESKTOP_SESSION=xubuntu
 export GDMSESSION=xubuntu
 export XDG_SESSION_DESKTOP=xubuntu
@@ -26,9 +22,3 @@ xsetroot -solid grey
 
 tigervncconfig -iconic &
 exec startxfce4
-xset s noblank &
-xset s off &
-xsetroot -solid grey
-tigervncconfig -iconic &
-startxfce4
-
