@@ -3,31 +3,13 @@ SHELL := /usr/bin/env bash
 MAKEFLAGS += --no-builtin-rules
 MAKEFLAGS += --no-builtin-variables
 MAKE := $(make)
+DATETIME_FORMAT := %(%Y-%m-%d %H:%M:%S)T
 
 .SUFFIXES:
 .DELETE_ON_ERROR:
 
-
-ANSI_GREEN=\033[92m
-ANSI_RED=\033[91m
-ANSI_CYAN=\033[96m
-ANSI_YELLOW=\033[93m
-ANSI_MAGENTA=\033[95m
-ANSI_BLUE=\033[94m
-ANSI_RESET=\033[0m
-ANSI_BOLD=\033[1m
-ANSI_UNDERLINE=\033[4m
-
-DATETIME_FORMAT := %(%Y-%m-%d %H:%M:%S)T
-
-ifeq (, $(shell which apptainer 2> /dev/null))
-$(error "No apptainer in $(PATH). Are you running on a login node? If so, allocate a compute node with salloc and run this there")
-endif
-
-
 APPTAINER_BIN ?= $(shell command -v apptainer 2>/dev/null || command -v singularity 2>/dev/null)
 SUBDIRS     ?= $(patsubst %/Singularity,%,$(wildcard */Singularity))
-
 
 .PHONY: help
 help:  ## Prints this usage.
