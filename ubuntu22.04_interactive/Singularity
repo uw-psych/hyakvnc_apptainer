@@ -6,13 +6,12 @@ From: ubuntu:22.04
 
 %labels
 	Maintainer altan@uw.edu
-	Version v0.0.1
 
 %environment
 	export DEBIAN_FRONTEND=noninteractive
-	export LC_ALL='en_US.UTF-8'
-	export LANG='en_US.UTF-8'
-	export TZ='America/Los_Angeles'
+	export LANG=C.UTF-8
+	export LC_ALL=C.UTF-8
+	export TZ=America/Los_Angeles
 
 %post
 	export DEBIAN_FRONTEND=noninteractive
@@ -22,7 +21,6 @@ From: ubuntu:22.04
 
 	# Install basic tools:
 	apt-get install -y -q \
-		locales \
 		make \
 		nano \
 		vim \
@@ -33,15 +31,11 @@ From: ubuntu:22.04
 		netcat-openbsd \
 		less \
 		git \
-		net-tools
+		gawk \
+		net-tools \
+		procps \
+		psmisc
 	
-	# Configure default locale
-	echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
-	locale-gen en_US.utf8
-	/usr/sbin/update-locale LANG=en_US.UTF-8
-	export LC_ALL=en_US.UTF-8
-	export LANG=en_US.UTF-8
-
 	# Install GitHub CLI:
 	curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
 	chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
