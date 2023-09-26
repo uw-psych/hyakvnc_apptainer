@@ -50,5 +50,6 @@ $(SUBDIRS):
 
 .PHONY: $(SUBDIRS)
 
-ubuntu22.04_xubuntu: ubuntu22.04_interactive
+ubuntu22.04_xubuntu: ubuntu22.04_interactive/ubuntu22.04_interactive.sif
 
+ubuntu22.04_xubuntu_freesurfer: ubuntu22.04_xubuntu/ubuntu22.04_xubuntu.sif

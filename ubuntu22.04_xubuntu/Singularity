@@ -1,5 +1,5 @@
 Bootstrap: localimage
-From: ../ubuntu22.04_interactive/ubuntu22
+From: ../ubuntu22.04_interactive/ubuntu22.04_interactive.sif
 
 %help
 	This is an Apptainer container of Ubuntu 22.04 with X and TigerVNC installed.
@@ -26,6 +26,9 @@ From: ../ubuntu22.04_interactive/ubuntu22
 		novnc \
 		dbus-x11 \
 		xserver-xorg-input-all \
+		xauth \
+		xfonts-base \
+		xkb-data \
 		at-spi2-core
 
 	apt-get install -y -q --no-install-recommends \
@@ -37,6 +40,7 @@ From: ../ubuntu22.04_interactive/ubuntu22
 	apt-get install -y -q \
 		libfuse2 \
 		libnotify-bin \
+		xfce4-artwork \
 		xfce4-indicator-plugin \
 		xfce4-screenshooter \
 		xfce4-statusnotifier-plugin \
@@ -44,18 +48,20 @@ From: ../ubuntu22.04_interactive/ubuntu22
 		xfce4-whiskermenu-plugin \
 		xfce4-xkb-plugin \
 		xfce4-panel-profiles \
+		evince \
 		thunar-archive-plugin \
 		xarchiver \
 		ristretto \
 		mousepad \
 		tumbler
 
+
 	# Clean up packages:
 	apt-get clean -y -qq && rm -rf /var/lib/apt/lists/*
 
 	# Configure TigerVNC default password
 	echo "$VNCSERVER_DEFAULT_PASSWORD" | vncpasswd -f > /etc/vncpasswd-insecure.conf
-	echo '$SecurityTypes = "None,VncAuth";' >> /etc/tigervnc/vncserver-config-defaults
+	echo '$SecurityTypes = "VncAuth";' >> /etc/tigervnc/vncserver-config-defaults
 	echo '$vncPasswdFile = "/etc/vncpasswd-insecure.conf";' >> /etc/tigervnc/vncserver-config-defaults
 	echo '$vncStartup = "/usr/local/bin/start-xubuntu.sh";' >> /etc/tigervnc/vncserver-config-defaults
 
