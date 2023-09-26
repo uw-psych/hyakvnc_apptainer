@@ -12,17 +12,20 @@ Available Apptainers and their descendants:
 - ~~`ubuntu20.04`~~
 - ~~`rockylinux8_min`~~
 - ~~``rockylinux8`~~
-- `ubuntu22.04_interactive`:
-	- `ubuntu22.04_xubuntu`
+- `ubuntu22.04_interactive`: An basic command-line starter image for interactive use
+	- `ubuntu22.04_xubuntu`: Ubuntu with most of Xubuntu tools installed
+    	-  `ubuntu22.04_xubuntu_freesurfer`: + FreeSurfer
 
 
-Minimized/barebones container recipes, suffixed with `_min`, are provided with
-XFCE4, vncserver, and dependencies to run Lmod and build/run Apptainers.
+~~Minimized/barebones container recipes, suffixed with `_min`, are provided with
+XFCE4, vncserver, and dependencies to run Lmod and build/run Apptainers.~~
 
 These container recipes are provided to serve as examples and are meant to be
 modified to user needs.
 
 ## Build Steps
+
+It is recommended that you run this from a directory on `/gscratch` rather than in your home directory (e.g., `/gscratch/<mygroup>/<myusername>/hyak_vnc_apptainer`) -- otherwise, you might run out of disk space.
 
 Following guidance from [Hyak's Documentation](https://hyak.uw.edu/docs/tools/containers),
 We will need to build the container on an interactive work node:

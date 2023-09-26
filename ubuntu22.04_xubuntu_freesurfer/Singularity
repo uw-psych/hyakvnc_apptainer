@@ -10,7 +10,7 @@ From: ../ubuntu22.04_xubuntu/ubuntu22.04_xubuntu.sif
 %environment
 	FREESURFER_VERSION='7.4.1'
 	export FREESURFER_HOME="/usr/local/freesurfer/${FREESURFER_VERSION}"
-	 
+
 %post
 	export DEBIAN_FRONTEND=noninteractive
 	export LC_ALL='C.UTF-8'
@@ -20,10 +20,8 @@ From: ../ubuntu22.04_xubuntu/ubuntu22.04_xubuntu.sif
 	DLPATH=$(mktemp --suffix=.deb)
 	export FREESURFER_HOME="/usr/local/freesurfer/${FREESURFER_VERSION}"
 
-
-
 	# Install dependencies for freesurfer:
-	apt-get update -y -q && apt-get install -y -q --no-install-recommends minc-tools
+	apt-get update -y -q && apt-get upgrade -y -q && apt-get install -y -q --no-install-recommends minc-tools
 
 	# Download freesurfer binary package and install:
 	curl -L -o "${DLPATH}" "${FREESURFER_DEB_URL}" && dpkg -i "${DLPATH}" && rm "${DLPATH}"

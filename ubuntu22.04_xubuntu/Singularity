@@ -29,6 +29,7 @@ From: ../ubuntu22.04_interactive/ubuntu22.04_interactive.sif
 		xauth \
 		xfonts-base \
 		xkb-data \
+		xfce4 \
 		at-spi2-core
 
 	apt-get install -y -q --no-install-recommends \
@@ -40,7 +41,6 @@ From: ../ubuntu22.04_interactive/ubuntu22.04_interactive.sif
 	apt-get install -y -q \
 		libfuse2 \
 		libnotify-bin \
-		xfce4-artwork \
 		xfce4-indicator-plugin \
 		xfce4-screenshooter \
 		xfce4-statusnotifier-plugin \
