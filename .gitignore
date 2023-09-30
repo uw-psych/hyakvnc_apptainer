@@ -1,1 +1,5 @@
 *.sif
+.vscode/
+.history/
+.idea/
+
