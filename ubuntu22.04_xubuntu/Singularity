@@ -10,85 +10,66 @@ From: ../ubuntu22.04_interactive/ubuntu22.04_interactive.sif
 %files
 	./*.sh /usr/local/bin
 
-%environment
-	export VNC_DEFAULT_PASSWORD=password
-	export TVNC_WM=xfce
-	export PATH="/opt/TurboVNC/bin:$PATH"
 %post
-	set -e
 	export DEBIAN_FRONTEND=noninteractive
 	export LC_ALL='C.UTF-8'
 	export LANG='C.UTF-8'
+	export VNCSERVER_DEFAULT_PASSWORD='password'
 	apt-get update -qq
-	
-	# Install TurboVNC dependencies:
+
 	apt-get install -y -q \
-		libpam0g \
-		libxt6 \
-		libxext6 \
+		xterm \
+		tigervnc-standalone-server \
+		tigervnc-common \
+		tigervnc-xorg-extension \
+		tigervnc-tools \
+		novnc \
+		dbus-x11 \
+		xserver-xorg-input-all \
 		xauth \
-		x11-xkb-utils \
+		xfonts-base \
 		xkb-data \
-		python3 
-
-	# Install TurboVNC:
-	wget https://sourceforge.net/projects/turbovnc/files/3.0.91%20%283.1%20beta2%29/turbovnc_3.0.91_amd64.deb && dpkg -i turbovnc_3.0.91_amd64.deb && rm turbovnc_3.0.91_amd64.deb && apt-get install --fix-broken -y -q
-
-	apt-get install -y -q \
 		xfce4 \
-		xfce4-goodies \
-		at-spi2-core \
-		gnome-keyring \
-		thunar \
-		thunar-volman \
-		thunar-archive-plugin \
-		file-roller \
-		xdg-user-dirs \
-		xdg-user-dirs-gtk \
-		xdg-utils \
-		zip \
-		bzip2 \
-		libfuse2 \
-		libnotify-bin \
-		libpam-gnome-keyring \
-		packagekit \
-		policykit-desktop-privileges \
-		evince \
-		desktop-file-utils \
-		gvfs \
-		gvfs-backends \
-		gvfs-fuse \
-		libturbojpeg
+		at-spi2-core
 
 	apt-get install -y -q --no-install-recommends \
 		xubuntu-core \
 		fonts-liberation \
 		fonts-opensymbol \
-		fonts-ubuntu \
-		fonts-powerline
+		fonts-ubuntu
+
+	apt-get install -y -q \
+		libfuse2 \
+		libnotify-bin \
+		xfce4-indicator-plugin \
+		xfce4-screenshooter \
+		xfce4-statusnotifier-plugin \
+		xfce4-terminal \
+		xfce4-whiskermenu-plugin \
+		xfce4-xkb-plugin \
+		xfce4-panel-profiles \
+		evince \
+		thunar-archive-plugin \
+		xarchiver \
+		ristretto \
+		mousepad \
+		tumbler
+
 
 	# Clean up packages:
 	apt-get clean -y -qq && rm -rf /var/lib/apt/lists/*
 
-%apprun vncpasswd
-	# Set VNC password:
-	echo "${1:-${VNC_DEFAULT_PASSWORD}}" | vncpasswd -f > "${2:-${HOME}/.vnc/passwd}" && chmod 600 "${2:-${HOME}/.vnc/passwd}" && echo "Set VNC password to ${1:-${VNC_DEFAULT_PASSWORD}}"
-
-%apprun vncclean
-	# Clean stale VNC sessions:
-	echo "Cleaning stale VNC sessions..." /usr/local/bin/clean-stale-vnc.sh "${@}"
+	# Configure TigerVNC default password
+	echo "$VNCSERVER_DEFAULT_PASSWORD" | vncpasswd -f > /etc/vncpasswd-insecure.conf
+	echo '$SecurityTypes = "VncAuth";' >> /etc/tigervnc/vncserver-config-defaults
+	echo '$vncPasswdFile = "/etc/vncpasswd-insecure.conf";' >> /etc/tigervnc/vncserver-config-defaults
+	echo '$vncStartup = "/usr/local/bin/start-xubuntu.sh";' >> /etc/tigervnc/vncserver-config-defaults
 
 %apprun vncserver
-	# Set password if none:
-	[ -e "${HOME}/.vnc/passwd" ] || /scif/apps/vncpasswd/scif/runscript
-	# Clean stale sessions:
-	/scif/apps/vncclean/scif/runscript
-	vncserver -fg "${@}"
+	vncserver -verbose -fg -PasswordFile /etc/vncpasswd-insecure.conf "${@}"
 
 %runscript
-	# %apprun vncserver:
-	exec /scif/apps/vncserver/scif/runscript "${@}"
+	vncserver -verbose -fg -PasswordFile /etc/vncpasswd-insecure.conf "${@}"
 
 %startscript
-	# %apprun vncserver:
-	exec /scif/apps/vncserver/scif/runscript "${@}"
+	vncserver -verbose -PasswordFile /etc/vncpasswd-insecure.conf "${@}"
