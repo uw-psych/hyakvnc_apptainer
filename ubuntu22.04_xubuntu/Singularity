@@ -1,75 +1,47 @@
 Bootstrap: localimage
-From: ../ubuntu22.04_interactive/ubuntu22.04_interactive.sif
+From: ./turbovnc_base.sif
 
-%help
-	This is an Apptainer container of Ubuntu 22.04 with X and TigerVNC installed.
-
-%labels
-	MAINTAINER "Altan Orhon - altan@uw.edu"
-
-%files
-	./*.sh /usr/local/bin
 
 %post
+	set -e
 	export DEBIAN_FRONTEND=noninteractive
 	export LC_ALL='C.UTF-8'
 	export LANG='C.UTF-8'
-	export VNCSERVER_DEFAULT_PASSWORD='password'
 	apt-get update -qq
-
+	
 	apt-get install -y -q \
-		xterm \
-		tigervnc-standalone-server \
-		tigervnc-common \
-		tigervnc-xorg-extension \
-		tigervnc-tools \
-		novnc \
-		dbus-x11 \
-		xserver-xorg-input-all \
-		xauth \
-		xfonts-base \
-		xkb-data \
 		xfce4 \
-		at-spi2-core
+		xfce4-goodies \
+		at-spi2-core \
+		gnome-keyring \
+		thunar \
+		thunar-volman \
+		thunar-archive-plugin \
+		file-roller \
+		xdg-user-dirs \
+		xdg-user-dirs-gtk \
+		xdg-utils \
+		zip \
+		bzip2 \
+		libfuse2 \
+		libnotify-bin \
+		libpam-gnome-keyring \
+		packagekit \
+		policykit-desktop-privileges \
+		evince \
+		desktop-file-utils \
+		gvfs \
+		gvfs-backends \
+		gvfs-fuse \
+		libturbojpeg
 
 	apt-get install -y -q --no-install-recommends \
 		xubuntu-core \
 		fonts-liberation \
 		fonts-opensymbol \
-		fonts-ubuntu
-
-	apt-get install -y -q \
-		libfuse2 \
-		libnotify-bin \
-		xfce4-indicator-plugin \
-		xfce4-screenshooter \
-		xfce4-statusnotifier-plugin \
-		xfce4-terminal \
-		xfce4-whiskermenu-plugin \
-		xfce4-xkb-plugin \
-		xfce4-panel-profiles \
-		evince \
-		thunar-archive-plugin \
-		xarchiver \
-		ristretto \
-		mousepad \
-		tumbler
-
+		fonts-ubuntu \
+		fonts-powerline
 
 	# Clean up packages:
 	apt-get clean -y -qq && rm -rf /var/lib/apt/lists/*
 
-	# Configure TigerVNC default password
-	echo "$VNCSERVER_DEFAULT_PASSWORD" | vncpasswd -f > /etc/vncpasswd-insecure.conf
-	echo '$SecurityTypes = "VncAuth";' >> /etc/tigervnc/vncserver-config-defaults
-	echo '$vncPasswdFile = "/etc/vncpasswd-insecure.conf";' >> /etc/tigervnc/vncserver-config-defaults
-	echo '$vncStartup = "/usr/local/bin/start-xubuntu.sh";' >> /etc/tigervnc/vncserver-config-defaults
-
-%apprun vncserver
-	vncserver -verbose -fg -PasswordFile /etc/vncpasswd-insecure.conf "${@}"
-
-%runscript
-	vncserver -verbose -fg -PasswordFile /etc/vncpasswd-insecure.conf "${@}"
-
-%startscript
-	vncserver -verbose -PasswordFile /etc/vncpasswd-insecure.conf "${@}"
