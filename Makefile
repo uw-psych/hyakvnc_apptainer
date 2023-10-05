@@ -8,10 +8,10 @@ DATETIME_FORMAT := %(%Y-%m-%d %H:%M:%S)T
 .SUFFIXES:
 .DELETE_ON_ERROR:
 
+CONTAINERDIR := $(or $(CONTAINERDIR), ./)
 
-SUBDIRS     ?= $(patsubst %/Singularity,%,$(wildcard */Singularity))
-
-SIFS    ?= $(patsubst %/Singularity,%,$(wildcard ${CONTAINER_DIR}/%.sif))
+SUBDIRS ?= $(patsubst %/Singularity,%,$(wildcard */Singularity))
+SIFS ?= $(patsubst %/Singularity,%,$(wildcard ${CONTAINERDIR}/%.sif))
 
 
 .PHONY: help
@@ -58,11 +58,7 @@ endif
 
 .PHONY: $(SUBDIRS)
 
+ubuntu22.04_turbovnc: ${CONTAINERDIR}/ubuntu22.04_interactive.sif ## Interactive Ubuntu base container
+ubuntu22.04_xubuntu: ${CONTAINERDIR}/ubuntu22.04_turbovnc.sif ## Ubuntu with TurboVNC installed
+ubuntu22.04_xubuntu_freesurfer: ${CONTAINERDIR}/ubuntu22.04_xubuntu/ubuntu22.04_xubuntu.sif ## Ubuntu with TurboVNC and FreeSurfer installed
 
-ubuntu22.04_turbovnc: ${CONTAINERDIR}/ubuntu22.04_interactive.sif
-
-
-ubuntu22.04_xubuntu: ${CONTAINERDIR}/ubuntu22.04_turbovnc.sif 
-
-
-#ubuntu22.04_xubuntu_freesurfer: ubuntu22.04_xubuntu/ubuntu22.04_xubuntu.sif
