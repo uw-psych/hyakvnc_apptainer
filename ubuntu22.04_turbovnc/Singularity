@@ -3,7 +3,7 @@ Bootstrap: localimage
 From: {{CONTAINERDIR}}/ubuntu22.04_interactive.sif
 
 %arguments
-	CONTAINERDIR=./
+	CONTAINERDIR=../
 
 %help
 	This is an Apptainer container of Ubuntu 22.04 with TurboVNC installed.
@@ -20,6 +20,7 @@ From: {{CONTAINERDIR}}/ubuntu22.04_interactive.sif
 	export HYAKVNC_USER_LOGFILE="${HYAKVNC_USER_BASE_DIR}/vnc.log"
 	export HYAKVNC_USER_PASSWORDFILE="${HYAKVNC_USER_BASE_DIR}/passwd"
 	export HYAKVNC_USER_DISPLAY=":1"
+
 %post
 	set -e
 	export DEBIAN_FRONTEND=noninteractive

@@ -1,4 +1,4 @@
-SHELL := /usr/bin/env bash
+SHELL := /bin/bash
 .SHELLFLAGS := -eo pipefail -O xpg_echo -o errtrace -o functrace -c
 MAKEFLAGS += --no-builtin-rules
 MAKEFLAGS += --no-builtin-variables
@@ -8,8 +8,7 @@ DATETIME_FORMAT := %(%Y-%m-%d %H:%M:%S)T
 .SUFFIXES:
 .DELETE_ON_ERROR:
 
-CONTAINERDIR := $(or $(CONTAINERDIR), ./)
-
+CONTAINERDIR := $(or $(CONTAINERDIR), $(realpath ./))
 SUBDIRS ?= $(patsubst %/Singularity,%,$(wildcard */Singularity))
 SIFS ?= $(patsubst %/Singularity,%,$(wildcard ${CONTAINERDIR}/%.sif))
 

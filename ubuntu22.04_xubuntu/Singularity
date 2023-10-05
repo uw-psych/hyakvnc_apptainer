@@ -1,12 +1,15 @@
 Bootstrap: localimage
-From: ./turbovnc_base.sif
+From: {{CONTAINERDIR}}/ubuntu22.04_turbovnc.sif
 
+%arguments
+	CONTAINERDIR=../
 
 %post
 	set -e
 	export DEBIAN_FRONTEND=noninteractive
 	export LC_ALL='C.UTF-8'
 	export LANG='C.UTF-8'
+
 	apt-get update -qq
 	
 	apt-get install -y -q \
@@ -33,15 +36,11 @@ From: ./turbovnc_base.sif
 		gvfs \
 		gvfs-backends \
 		gvfs-fuse \
-		libturbojpeg
-
-	apt-get install -y -q --no-install-recommends \
-		xubuntu-core \
+		xubunutu-core \
 		fonts-liberation \
 		fonts-opensymbol \
-		fonts-ubuntu \
 		fonts-powerline
-
+	
 	# Clean up packages:
 	apt-get clean -y -qq && rm -rf /var/lib/apt/lists/*
 
