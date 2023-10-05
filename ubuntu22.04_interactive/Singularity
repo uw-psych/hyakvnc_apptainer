@@ -1,6 +1,8 @@
 Bootstrap: docker
 From: ubuntu:22.04
 
+%arguments
+	CONTAINERDIR=./
 %help
 	This is an Apptainer container of Ubuntu 22.04 for interactive use.
 

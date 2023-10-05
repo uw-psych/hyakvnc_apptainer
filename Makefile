@@ -8,8 +8,11 @@ DATETIME_FORMAT := %(%Y-%m-%d %H:%M:%S)T
 .SUFFIXES:
 .DELETE_ON_ERROR:
 
-APPTAINER_BIN ?= $(shell command -v apptainer 2>/dev/null || command -v singularity 2>/dev/null)
+
 SUBDIRS     ?= $(patsubst %/Singularity,%,$(wildcard */Singularity))
+
+SIFS    ?= $(patsubst %/Singularity,%,$(wildcard ${CONTAINER_DIR}/%.sif))
+
 
 .PHONY: help
 help:  ## Prints this usage.
@@ -45,11 +48,21 @@ printvar-%: ## Print one Makefile variable.
 	@echo '   value = $(value  $*)'
 
 
-$(SUBDIRS):
-	cd $@ && $(APPTAINER_BIN) build $@.sif Singularity 
+${CONTAINERDIR}/%.sif: %/Singularity
+
+$(SUBDIRS): 
+ifeq (, $(shell command -v apptainer 2>/dev/null))
+	$(error "No apptainer in $(PATH). If you're on klone, you should be on a compute node")
+endif
+	apptainer build --fix-perms --warn-unused-build-args --build-arg CONTAINERDIR=${CONTAINERDIR} ${CONTAINERDIR}/$@.sif $@/Singularity 
 
 .PHONY: $(SUBDIRS)
 
-ubuntu22.04_xubuntu: ubuntu22.04_interactive/ubuntu22.04_interactive.sif
 
-ubuntu22.04_xubuntu_freesurfer: ubuntu22.04_xubuntu/ubuntu22.04_xubuntu.sif
+ubuntu22.04_turbovnc: ${CONTAINERDIR}/ubuntu22.04_interactive.sif
+
+
+ubuntu22.04_xubuntu: ${CONTAINERDIR}/ubuntu22.04_turbovnc.sif 
+
+
+#ubuntu22.04_xubuntu_freesurfer: ubuntu22.04_xubuntu/ubuntu22.04_xubuntu.sif
