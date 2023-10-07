@@ -1,17 +1,22 @@
 SHELL := /bin/bash
-.SHELLFLAGS := -eo pipefail -O xpg_echo -o errtrace -o functrace -c
+.SHELLFLAGS := -e -O xpg_echo -o errtrace -o functrace -c
 MAKEFLAGS += --no-builtin-rules
 MAKEFLAGS += --no-builtin-variables
 MAKE := $(make)
 DATETIME_FORMAT := %(%Y-%m-%d %H:%M:%S)T
-
+.ONESHELL:
 .SUFFIXES:
 .DELETE_ON_ERROR:
 
-CONTAINERDIR := $(or $(CONTAINERDIR), $(realpath ./))
-SUBDIRS ?= $(patsubst %/Singularity,%,$(wildcard */Singularity))
-SIFS ?= $(patsubst %/Singularity,%,$(wildcard ${CONTAINERDIR}/%.sif))
+CONTAINERDIR := $(or $(CONTAINERDIR), ./built_containers)
 
+$(CONTAINERDIR):
+	@mkdir -pv $@
+
+#DEFS := $(wildcard */Singularity)
+#SIFS := $(addprefix $(CONTAINERDIR)/,$(DEFS:/Singularity=.sif))
+#SIFS_SOFTLINKS :=  $(addprefix ,$(DEFS:/Singularity=.sif))
+SUBDIRS := $(patsubst %/Singularity,%,$(wildcard */Singularity))
 
 .PHONY: help
 help:  ## Prints this usage.
@@ -47,17 +52,42 @@ printvar-%: ## Print one Makefile variable.
 	@echo '   value = $(value  $*)'
 
 
-${CONTAINERDIR}/%.sif: %/Singularity
+.DEFAULT_GOAL := help
 
-$(SUBDIRS): 
+
+
+
+${CONTAINERDIR}/%.sif: %/Singularity | $(CONTAINERDIR)
 ifeq (, $(shell command -v apptainer 2>/dev/null))
 	$(error "No apptainer in $(PATH). If you're on klone, you should be on a compute node")
 endif
-	apptainer build --fix-perms --warn-unused-build-args --build-arg CONTAINERDIR=${CONTAINERDIR} ${CONTAINERDIR}/$@.sif $@/Singularity 
+	apptainer build --fakeroot --fix-perms --warn-unused-build-args --build-arg CONTAINERDIR="$$CONTAINERDIR" $@ $< 
+	[ -n "$$APPTAINER_PASSPHRASE" ] && echo "$$APPTAINER_PASSPHRASE" | apptainer sign $@ || echo "Not signing $@"
+
+%.sif: ${CONTAINERDIR}/%.sif | $(CONTAINERDIR)
+	ln -sf $< $@
 
 .PHONY: $(SUBDIRS)
+#$(SUBDIRS): %: ${CONTAINERDIR}/%.sif ## Build a container
+$(SUBDIRS): %: %.sif ## Build a container
 
-ubuntu22.04_turbovnc: ${CONTAINERDIR}/ubuntu22.04_interactive.sif ## Interactive Ubuntu base container
-ubuntu22.04_xubuntu: ${CONTAINERDIR}/ubuntu22.04_turbovnc.sif ## Ubuntu with TurboVNC installed
-ubuntu22.04_xubuntu_freesurfer: ${CONTAINERDIR}/ubuntu22.04_xubuntu/ubuntu22.04_xubuntu.sif ## Ubuntu with TurboVNC and FreeSurfer installed
+#$(SIFS): $(DEFS)
+
+
+$(CONTAINERDIR)/ubuntu22.04_turbovnc.sif:: $(CONTAINERDIR)/ubuntu22.04_interactive.sif
+$(CONTAINERDIR)/ubuntu22.04_xubuntu.sif:: $(CONTAINERDIR)/ubuntu22.04_turbovnc.sif
+
+#$(SUBDIRS): $(DEFS) $(SIFS)
+
+#.PHONY: $(SUBDIRS)
+
+#ubuntu22.04_interactive.sif: ${CONTAINERDIR}/ubuntu22.04_interactive.sif ## Interactive Ubuntu base container
+#	ln -sf $< $@
+
+#ubuntu22.04_turbovnc.sif: ubuntu22.04_interactive.sif |${CONTAINERDIR}/ubuntu22.04_turbovnc.sif  ## Interactive Ubuntu base container
+#	ln -sf $< $@
+
+
+#ubuntu22.04_xubuntu: ${CONTAINERDIR}/ubuntu22.04_turbovnc.sif ## Ubuntu with TurboVNC installed
+#ubuntu22.04_xubuntu_freesurfer: ${CONTAINERDIR}/ubuntu22.04_xubuntu/ubuntu22.04_xubuntu.sif ## Ubuntu with TurboVNC and FreeSurfer installed
 

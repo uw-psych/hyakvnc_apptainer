@@ -22,40 +22,77 @@ From: ubuntu:22.04
 	export TZ='America/Los_Angeles'
 	export LANG=C.UTF-8
 	export LC_ALL=C.UTF-8
-	export TZ=America/Los_Angeles
-	
-	# Ignore locales other than en:
-	find . -type f ! '(' -name 'en' ')' -exec rm {} \; -exec touch {} \; -exec chattr +i {} \;
 
+	# Don't generate these locales:
+	mkdir -p /var/lib/locales/supported.d
+	for localename in fr de zh-hant ja es it zh-hans pt ru ar; do
+		rm -f /var/lib/locales/supported.d/$localename && \
+		touch /var/lib/locales/supported.d/$localename && \
+		chmod a-r /var/lib/locales/supported.d/$localename
+	done
+	
 	# Update package list:
 	apt-get update -qq
 
 	# Install basic tools:
-	apt-get install -y -q \
-		make \
-		nano \
-		vim \
+	# apt-utils: for apt utilities
+	# bash-completion: for bash completion of commands
+	# curl: for downloading files
+	# debconf: for debconf to manage packages
+	# findutils: for find, xargs, etc. to find files
+	# gawk: for awk to process text files
+	# git: for git to manage source code
+	# iproute2: for ip to manage network
+	# less: for less to view files
+	# locales: for localedef to install locales
+	# make: for make to build things
+	# nano: for nano to edit files
+	# net-tools: for ifconfig, netstat, etc. to manage network
+	# netcat-openbsd: for nc, etc. to work with network connections
+	# openssh-client: for ssh and scp to connect to other machines
+	# procps: for ps, top, etc. to manage processes
+	# psmisc: for killall, etc. to manage processes
+	# python3: for python3 to run python scripts
+	# python3-pip: for pip3 to install python packages
+	# python3-setuptools: for easy_install3 to install python packages
+	# python3-venv: for python3 -m venv to create virtual environments
+	# python3-wheel: support bdist_wheel for python packages
+	# vim: for vim to edit files
+	# wget: for wget to download files
+
+	apt-get install --yes --quiet --no-install-recommends \
+		apt-utils \
 		bash-completion \
 		curl \
-		wget \
-		iproute2 \
-		netcat-openbsd \
-		less \
-		git \
+		findutils \
 		gawk \
+		git \
+		iproute2 \
+		less \
+		locales \
+		make \
+		nano \
 		net-tools \
+		netcat-openbsd \
+		openssh-client \
 		procps \
 		psmisc \
-		locales \
-		openssh-client \
-		apt-utils
+		python3 \
+		python3-pip \
+		python3-setuptools \
+		python3-venv \
+		python3-wheel \
+		vim \
+		wget
+	
+	# Install en_US.UTF-8 locale:
+	localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
 
 	# Install GitHub CLI:
 	curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
 	chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
 	echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null
-
-	apt-get update -qq && apt-get install -y -qq gh
+	apt-get update --quiet && apt-get install --yes --quiet gh
 
 	# Clean up packages:
 	apt-get clean -y -qq && rm -rf /var/lib/apt/lists/*
