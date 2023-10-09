@@ -8,16 +8,35 @@ DATETIME_FORMAT := %(%Y-%m-%d %H:%M:%S)T
 .SUFFIXES:
 .DELETE_ON_ERROR:
 
-CONTAINERDIR := $(or $(CONTAINERDIR), ./built_containers)
+# Where to store built containers:
+CONTAINERDIR := $(or $(CONTAINERDIR), $(shell pwd))
 
+# Make sure CONTAINERDIR exists:
 $(CONTAINERDIR):
 	@mkdir -pv $@
 
-#DEFS := $(wildcard */Singularity)
-#SIFS := $(addprefix $(CONTAINERDIR)/,$(DEFS:/Singularity=.sif))
-#SIFS_SOFTLINKS :=  $(addprefix ,$(DEFS:/Singularity=.sif))
+# Make targets for each directory that contains a Singularity file
+# (allows you to build a single container with `make <container_name>`):
 SUBDIRS := $(patsubst %/Singularity,%,$(wildcard */Singularity))
+.PHONY: $(SUBDIRS)
+$(SUBDIRS): %: ${CONTAINERDIR}/%.sif
 
+# Build target for each container:
+${CONTAINERDIR}/%.sif: %/Singularity | $(CONTAINERDIR)
+ifeq (, $(shell command -v apptainer 2>/dev/null))
+	$(error "No apptainer in $(PATH). If you're on klone, you should be on a compute node")
+endif
+	pushd $(<D)
+	apptainer build --fakeroot --fix-perms --warn-unused-build-args --build-arg CONTAINERDIR="$(CONTAINERDIR)" $@ $(<F)
+	popd
+	[ -n "$$APPTAINER_PASSPHRASE" ] && echo "$$APPTAINER_PASSPHRASE" | apptainer sign $@
+
+
+# Add dependencies for containers that depend on other containers:
+$(CONTAINERDIR)/ubuntu22.04_turbovnc.sif:: $(CONTAINERDIR)/ubuntu22.04_interactive.sif
+$(CONTAINERDIR)/ubuntu22.04_xubuntu.sif:: $(CONTAINERDIR)/ubuntu22.04_turbovnc.sif
+
+# Targets for printing help:
 .PHONY: help
 help:  ## Prints this usage.
 	@printf '== Recipes ==\n' && grep --no-filename -E '^[a-zA-Z0-9-]+:' $(MAKEFILE_LIST) && echo '\n== Images ==' && echo $(SUBDIRS) | tr ' ' '\n' 
@@ -54,40 +73,4 @@ printvar-%: ## Print one Makefile variable.
 
 .DEFAULT_GOAL := help
 
-
-
-
-${CONTAINERDIR}/%.sif: %/Singularity | $(CONTAINERDIR)
-ifeq (, $(shell command -v apptainer 2>/dev/null))
-	$(error "No apptainer in $(PATH). If you're on klone, you should be on a compute node")
-endif
-	apptainer build --fakeroot --fix-perms --warn-unused-build-args --build-arg CONTAINERDIR="$$CONTAINERDIR" $@ $< 
-	[ -n "$$APPTAINER_PASSPHRASE" ] && echo "$$APPTAINER_PASSPHRASE" | apptainer sign $@ || echo "Not signing $@"
-
-%.sif: ${CONTAINERDIR}/%.sif | $(CONTAINERDIR)
-	ln -sf $< $@
-
-.PHONY: $(SUBDIRS)
-#$(SUBDIRS): %: ${CONTAINERDIR}/%.sif ## Build a container
-$(SUBDIRS): %: %.sif ## Build a container
-
-#$(SIFS): $(DEFS)
-
-
-$(CONTAINERDIR)/ubuntu22.04_turbovnc.sif:: $(CONTAINERDIR)/ubuntu22.04_interactive.sif
-$(CONTAINERDIR)/ubuntu22.04_xubuntu.sif:: $(CONTAINERDIR)/ubuntu22.04_turbovnc.sif
-
-#$(SUBDIRS): $(DEFS) $(SIFS)
-
-#.PHONY: $(SUBDIRS)
-
-#ubuntu22.04_interactive.sif: ${CONTAINERDIR}/ubuntu22.04_interactive.sif ## Interactive Ubuntu base container
-#	ln -sf $< $@
-
-#ubuntu22.04_turbovnc.sif: ubuntu22.04_interactive.sif |${CONTAINERDIR}/ubuntu22.04_turbovnc.sif  ## Interactive Ubuntu base container
-#	ln -sf $< $@
-
-
-#ubuntu22.04_xubuntu: ${CONTAINERDIR}/ubuntu22.04_turbovnc.sif ## Ubuntu with TurboVNC installed
-#ubuntu22.04_xubuntu_freesurfer: ${CONTAINERDIR}/ubuntu22.04_xubuntu/ubuntu22.04_xubuntu.sif ## Ubuntu with TurboVNC and FreeSurfer installed
 

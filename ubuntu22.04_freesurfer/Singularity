@@ -3,59 +3,89 @@ From: {{CONTAINERDIR}}/ubuntu22.04_turbovnc.sif
 
 %arguments
 	CONTAINERDIR=../
+	FREESURFER_DEB=freesurfer.deb
 	FREESURFER_VERSION=7.4.1
-	FREESURFER_ARCH=amd64
-
+	FREESURFER_HOME=/usr/local/freesurfer/{{FREESURFER_VERSION}}
+	FREESURFER_DL_URL=https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/{{FREESURFER_VERSION}}/freesurfer_ubuntu22-{{FREESURFER_VERSION}}_amd64.deb
 
 %help
 	This is an Apptainer container of Ubuntu 22.04 with TurboVNC and FreeSurfer installed.
 
-%labels
-	MAINTAINER "Altan Orhon - altan@uw.edu"
-
 %setup 
-	f=./"freesurfer_ubuntu22-{{FREESURFER_VERSION}}_{{FREESURFER_ARCH}}.deb"
+	f="{{FREESURFER_DEB}}"
 	if [ -r "$f" ]; then
-		echo "Using pre-downloaded freesurfer binary package!"
-		cp "$f" "${APPTAINER_ROOTFS}/freesurfer.deb"
+		echo "Using pre-downloaded freesurfer binary package at ${f:-}!"
+		cp "${f:-}" "${APPTAINER_ROOTFS}/freesurfer.deb"
 	else
 		echo "Did not find pre-downloaded freesurfer binary package at location ${f:-}"
 	fi
 
-%environment
-	export FREESURFER_VERSION="{{FREESURFER_VERSION}}"
-	export FREESURFER_HOME="/usr/local/freesurfer/${FREESURFER_VERSION}"
+%files
+	freeview.desktop /usr/share/applications/freeview.desktop
+
+%environment freesurfer
+	export FREESURFER_HOME={{FREESURFER_HOME}}
+	# Settings from SetupFreeSurfer.sh:
+	export OS="Linux"
+    export FS_OVERRIDE=0
+    export FIX_VERTEX_AREA=""
+    export FSF_OUTPUT_FORMAT="nii.gz"
+	export SUBJECTS_DIR="$FREESURFER_HOME/subjects"
+    export FUNCTIONALS_DIR="$FREESURFER_HOME/sessions"
+    export MNI_DIR="$FREESURFER_HOME/mni"
+    export LOCAL_DIR="$FREESURFER_HOME/local"
+    export MINC_BIN_DIR="$FREESURFER_HOME/mni/bin"
+    export MINC_LIB_DIR="$FREESURFER_HOME/mni/lib" 
+    export MNI_DATAPATH="$FREESURFER_HOME/mni/data"
+	export PERL5LIB="$MINC_LIB_DIR/perl5/5.8.5" \
+    export MNI_PERL5LIB="$MINC_LIB_DIR/perl5/5.8.5" \
+    export PATH="$FREESURFER_HOME/bin:$FREESURFER_HOME/tktools:$MINC_BIN_DIR:$PATH"
+	export SHELL="/bin/bash"
 
 %post
-	set -x
+	export FREESURFER_HOME="{{FREESURFER_HOME}}"
 	export DEBIAN_FRONTEND=noninteractive
 	export LC_ALL='C.UTF-8'
 	export LANG='C.UTF-8'
-	FREESURFER_VERSION="{{FREESURFER_VERSION}}"
-	export FREESURFER_HOME="/usr/local/freesurfer/${FREESURFER_VERSION}"
-
-	# Download freesurfer binary package if not exists:
-	if [ ! -r /freesurfer.deb ]; then
-		echo "Not using pre-downloaded freesurfer binary package!"
-		echo "Downloading freesurfer binary package..."
-		FREESURFER_DL_URL=https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/${FREESURFER_VERSION}/freesurfer_ubuntu22-${FREESURFER_VERSION}_amd64.deb
-		curl -L -o /freesurfer.deb "${FREESURFER_DL_URL}" || exit 1
-	fi
+	
+	# Enable exit on error:
+	set -e
 
 	# Update apt:
 	apt-get update --yes --quiet
 
-	# Install dependencies for freesurfer:
-	apt-get install --yes --quiet --no-install-recommends \
-	
+	# Download freesurfer binary package if not exists:
+	if [ ! -r /freesurfer.deb ]; then
+		echo "Not using pre-downloaded freesurfer binary package!"
+		FREESURFER_DL_URL="{{FREESURFER_DL_URL}}"
+		if [ -n "${FREESURFER_DL_URL:-}" ]; then 
+			echo "Downloading freesurfer binary package from "${FREESURFER_DL_URL}"..."
+			curl -L -o /freesurfer.deb "${FREESURFER_DL_URL}" || exit 1
+		else
+			echo "FREESURFER_DL_URL is not set. Don't know where to download freesurfer binary package from. Exiting."
+			exit 1
+		fi
+	else
+		echo "Using pre-downloaded freesurfer binary package."
+	fi
+
+	# Disable exit on error so dpkg --install can run without exiting due to dependencies:
+	set +e
+
+	# Create necessary directories:
+	mkdir -p "$FREESURFER_HOME"
+
 	# Install freesurfer:
 	dpkg --install /freesurfer.deb
 
 	# Fix dependencies:
 	apt-get --fix-broken install --yes --quiet --no-install-recommends
 
+	# Enable exit on error:
+	set -e
+
 	# Clean up freesurfer binary package:
-	rm /freesurfer.deb
+	rm -f /freesurfer.deb && echo "Removed freesurfer binary download"
 
 	# Clean up packages:
 	apt-get clean --yes --quiet && rm -rf /var/lib/apt/lists/*
