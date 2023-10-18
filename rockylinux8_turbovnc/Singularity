@@ -1,0 +1,132 @@
+
+Bootstrap: oras
+From: {{ORAS_REPO}}/rockylinux8_interactive:latest
+
+%arguments
+	ORAS_REPO=ghcr.io/uw-psych/hyakvnc_apptainer
+
+%help
+	This is an Apptainer container of Rocky Linux 8 with TurboVNC and XFCE installed.
+
+%files
+	../scripts/install-turbovnc.sh /opt/install-turbovnc.sh
+
+%environment
+	export LANG=C.UTF-8
+	export LC_ALL=C.UTF-8
+	export TZ=America/Los_Angeles
+	export VNC_DEFAULT_PASSWORD="password"
+	export PATH="/opt/TurboVNC/bin:$PATH"
+	export TVNC_WM=xfce
+	export HYAKVNC_USER_BASE_DIR="/vnc"
+	export HYAKVNC_USER_SOCKET="${HYAKVNC_USER_BASE_DIR}/socket.uds"
+	export HYAKVNC_USER_LOGFILE="${HYAKVNC_USER_BASE_DIR}/vnc.log"
+	export HYAKVNC_USER_PASSWORDFILE="${HYAKVNC_USER_BASE_DIR}/passwd"
+	export HYAKVNC_USER_DISPLAY=":1"
+	export SHELL="${SHELL:-/bin/bash}"
+
+%post
+	set -e
+	set -x
+	export LANG=C.UTF-8
+	export LC_ALL=C.UTF-8
+	export TZ=America/Los_Angeles
+
+	dnf update -y
+	# Install XFCE and GUI programs
+	dnf group install -y Xfce
+	df install -y xfce-polkit
+	dnf install -y \
+		adwaita-icon-theme \
+		at-spi2-atk \
+		at-spi2-core \
+		bzip2 \
+		dbus \
+		dbus-broker \
+		dbus-python3 \
+		dbus-x11 \
+		dejavu-fonts-common \
+		desktop-file-utils \
+		evince \
+		file-roller \
+		fontconfig \
+		fuse-libs \
+		ghostscript-fonts \
+		gnupg2 \
+		google-droid-sans-fonts \
+		google-droid-serif-fonts \
+		google-noto-mono-fonts \
+		gvfs \
+		gvfs-backends \
+		gvfs-fuse \
+		liberation-fonts \
+		libnotify \
+		powerline-fonts \
+		ristretto \
+		socat \
+		thunar \
+		thunar-archive-plugin \
+		thunar-volman \
+		tumbler \
+		udisks2 \
+		urw-base35-fonts \
+		xclip \
+		xdg-user-dirs \
+		xdg-user-dirs-gtk \
+		xdg-utils \
+		xfce4-notifyd \
+		xfce4-terminal \
+		xfce4-whiskermenu-plugin \
+		xorg-x11-apps \ 
+		xorg-x11-drivers \
+		xorg-x11-drv-dummy \
+		xorg-x11-font-utils \
+		xorg-x11-fonts-100dpi \
+		xorg-x11-fonts-ISO8859-1-100dpi \
+		xorg-x11-fonts-ISO8859-1-75dpi \
+		xorg-x11-fonts-misc \
+		xorg-x11-fonts-Type1 \
+		xorg-x11-server-utils \
+		xorg-x11-utils \
+		xorg-x11-xinit \
+		xorg-x11-xkb-utils \
+		xsel \
+		xz \
+		zip
+
+	/opt/install-turbovnc.sh && rm -f /opt/install-turbovnc.sh || exit 1
+
+	dnf clean all
+	
+	# Set up TurboVNC's base directory to be in the container's /vnc directory:
+	echo '$vncUserDir = "$ENV{HYAKVNC_USER_BASE_DIR}";' >> /etc/turbovncserver.conf
+
+%apprun vncpasswd
+	# Set VNC password:
+	VNC_PASSWORD="${1:-${VNC_PASSWORD:-${VNC_DEFAULT_PASSWORD:-}}}"
+	VNC_PASSWORD_FILE="${2:-${VNC_PASSWORD_FILE:-${HYAKVNC_USER_PASSWORDFILE:-}}}"
+	mkdir -p "$(dirname "${VNC_PASSWORD_FILE}")" \
+		&& echo "${VNC_PASSWORD}" | vncpasswd -f > "${VNC_PASSWORD_FILE}" \
+		&& chmod 600 "${VNC_PASSWORD_FILE}" \
+		&& echo "Set VNC password to ${VNC_PASSWORD} in file ${VNC_PASSWORD_FILE}"
+
+%apprun vncserver
+	# Set password if not exists:
+	mkdir -p "$(dirname "${HYAKVNC_USER_BASE_DIR}")"
+	[ -e "${HYAKVNC_USER_PASSWORDFILE}" ] || /scif/apps/vncpasswd/scif/runscript
+	echo "$(uname -n)" > "${HYAKVNC_USER_BASE_DIR}/hostname" \
+	&& exec vncserver \
+		"${HYAKVNC_USER_DISPLAY}" \
+		-fg \
+		-uds \
+		-log "${HYAKVNC_USER_LOGFILE}" \
+		-rfbunixpath "${HYAKVNC_USER_SOCKET}" \
+		"${@}"
+
+%apprun vnckill
+	[ -e "${HYAKVNC_USER_SOCKET}" ] && vncserver -kill "${HYAKVNC_USER_DISPLAY}"
+
+%runscript
+	# Run app vncserver:
+	exec /scif/apps/vncserver/scif/runscript
+

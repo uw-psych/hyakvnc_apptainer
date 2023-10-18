@@ -1,0 +1,78 @@
+Bootstrap: docker
+From: rockylinux:8
+
+%environment
+	export LANG=C.UTF-8
+	export LC_ALL=C.UTF-8
+	export TZ=America/Los_Angeles
+
+%post
+	set -e
+	set -x
+	export LANG=C.UTF-8
+	export LC_ALL=C.UTF-8
+	export TZ=America/Los_Angeles
+
+    dnf --exclude=filesystem\* update -y
+    dnf install -y epel-release dnf-plugins-core redhat-lsb-core
+    dnf config-manager --set-enabled powertools
+	dnf install 'dnf-command(config-manager)'
+	dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+    dnf --exclude=filesystem\* update -y
+
+    # Install dependencies for Lmod
+    dnf install -y \
+		lua \
+		lua-devel \
+		lua-filesystem \
+		lua-json \
+		lua-lpeg \
+		lua-posix \
+		lua-term \
+		tcl
+	
+    # Install dependencies for building with apptainer
+    dnf install -y \
+		e2fsprogs \
+		fakeroot \
+		fuse-overlayfs \
+		fuse3-libs \
+		libseccomp \
+        glibc \
+		zlib \
+		squashfs-tools \
+		squashfuse \
+		cryptsetup
+	
+	dnf install -y \
+		bash \
+		bash-completion \
+		curl \
+		findutils \
+		gawk \
+		gh \
+		git \
+		glibc-langpack-en \
+		iproute \
+		less \
+		make \
+		man-db \
+		man-pages-overrides \
+		nano \
+		net-tools \
+		nmap-ncat \
+		openssh-clients \
+		procps-ng \
+		psmisc \
+		python3-libs \
+		python3-pip \
+		python3-setuptools \
+		python3-wheel \
+		python36 \
+		vim-enhanced
+	
+	dnf clean all
+
+%labels
+    Author altan@uw.edu
+    Version v0.1-RockyLinux-8
