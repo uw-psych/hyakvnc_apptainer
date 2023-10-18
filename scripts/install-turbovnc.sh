@@ -50,4 +50,7 @@ if [ -r "${dlpath}" ]; then
 	fi
 fi
 
+# Making extra sure we remove the download file:
+rm -rf "${dlpath:-}"
+
 [ -n "${success:-}" ] && exit 0 || exit 1
