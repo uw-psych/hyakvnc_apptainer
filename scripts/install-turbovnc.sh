@@ -5,10 +5,14 @@ TURBOVNC_VERSION=${TURBOVNC_VERSION:-3.0.91}
 TURBOVNC_FILES_ROOT="${TURBOVNC_FILES_ROOT:-}"
 TURBOVNC_DOWNLOAD_ROOT="${TURBOVNC_DOWNLOAD_ROOT:-https://sourceforge.net/projects/turbovnc/files}"
 TURBOVNC_DOWNLOAD_URL="${TURBOVNC_DOWNLOAD_URL:-}"
-TURBOVNC_TMPDIR="${TURBOVNC_TMPDIR:-./}"
 
 if [ "${TURBOVNC_VERSION}" = "3.0.91" ] && [ -z "${TURBOVNC_FILES_ROOT:-}" ]; then
 	TURBOVNC_FILES_ROOT="3.0.91 (3.1 beta2)"
+fi
+
+if ! command -v curl >/dev/null 2>&1; then
+	echo "warning: curl not found!" >&2
+	exit 1
 fi
 
 # url-encode the files root:
@@ -30,33 +34,20 @@ if [ -z "${TURBOVNC_DOWNLOAD_URL:-}" ]; then
 	TURBOVNC_DOWNLOAD_URL="${TURBOVNC_DOWNLOAD_ROOT}/${files_root_enc}/${filename}"
 fi
 
-download_path="${TURBOVNC_TMPDIR}/${filename}"
+echo "Downloading ${TURBOVNC_DOWNLOAD_URL}..."
+dlpath=$(curl -w "%{filename_effective}" -fLO "${TURBOVNC_DOWNLOAD_URL}")
+trap 'rm -f "${dlpath:-}"' INT QUIT TERM EXIT
 
-if command -v curl >/dev/null 2>&1; then
-	echo "Downloading TurboVNC from ${TURBOVNC_DOWNLOAD_URL} to ${download_path} via curl..."
-	curl -o "${download_path}" -fsSL "${TURBOVNC_DOWNLOAD_URL}" || {
-		echo >&2 "error: failed to download ${TURBOVNC_DOWNLOAD_URL}"
-		exit 1
-	}
-elif command -v wget >/dev/null 2>&1; then
-	echo "Downloading TurboVNC from ${TURBOVNC_DOWNLOAD_URL} to ${download_path} via wget..."
-	wget -O "${download_path}" "${TURBOVNC_DOWNLOAD_URL}" || {
-		echo >&2 "error: failed to download ${TURBOVNC_DOWNLOAD_URL}"
-		exit 1
-	}
-else
-	echo >&2 "error: curl or wget not found"
-	exit 1
+if [ -r "${dlpath}" ]; then
+	if command -v dpkg >/dev/null 2>&1; then
+		# Is Debian/Ubuntu
+		dpkg --install --force-depends "${dlpath:-}" && apt-get install --fix-broken --yes --quiet && export success=1
+	elif command -v yum >/dev/null 2>&1; then
+		# Is RHEL/CentOS/Rocky
+		yum install -y -q "${dlpath}" && export success=1 || echo >&2 "warning: failed to install ${dlpath} via yum"
+	else
+		echo >&2 "Cannot determine package manager for this OS"
+	fi
 fi
 
-if command -v dpkg >/dev/null 2>&1; then
-	# Is Debian/Ubuntu
-	apt install -y -q --install-suggests --install-recommends "${download_path}" || echo >&2 "warning: failed to install ${TURBOVNC_DOWNLOAD_PATH}"
-elif command -v yum >/dev/null 2>&1; then
-	# Is RHEL/CentOS/Rocky
-	yum install -y -q "${download_path}" || echo >&2 "warning: failed to install ${TURBOVNC_DOWNLOAD_PATH}"
-else
-	echo >&2 "error: cannot determine package manager for this OS"
-fi
-
-rm -f "${download_path}"
+[ -n "${success:-}" ] && exit 0 || exit 1

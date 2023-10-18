@@ -1,9 +1,6 @@
 Bootstrap: docker
 From: ubuntu:22.04
 
-%arguments
-	CONTAINERDIR=../
-
 %help
 	This is an Apptainer container of Ubuntu 22.04 for interactive use.
 
@@ -18,6 +15,7 @@ From: ubuntu:22.04
 
 %post
 	set -e
+	set -x
 	export DEBIAN_FRONTEND=noninteractive
 	export TZ='America/Los_Angeles'
 	export LANG=C.UTF-8
@@ -30,6 +28,10 @@ From: ubuntu:22.04
 		touch /var/lib/locales/supported.d/$localename && \
 		chmod a-r /var/lib/locales/supported.d/$localename
 	done
+
+	# We want man pages:
+	echo Y | unminimize
+	
 	
 	# Update package list:
 	apt-get update -qq
@@ -59,7 +61,6 @@ From: ubuntu:22.04
 	# python3-wheel: support bdist_wheel for python packages
 	# vim: for vim to edit files
 	# wget: for wget to download files
-
 	apt-get install --yes --quiet --no-install-recommends \
 		apt-utils \
 		bash-completion \
@@ -71,6 +72,9 @@ From: ubuntu:22.04
 		less \
 		locales \
 		make \
+		man \
+		man-db \
+		manpages-posix \
 		nano \
 		net-tools \
 		netcat-openbsd \
@@ -82,9 +86,8 @@ From: ubuntu:22.04
 		python3-setuptools \
 		python3-venv \
 		python3-wheel \
-		vim \
-		wget
-	
+		vim
+		
 	# Install en_US.UTF-8 locale:
 	localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
 

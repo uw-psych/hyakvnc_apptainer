@@ -1,0 +1,36 @@
+name: Singularity Build
+on:
+  push:
+    tags:
+      - sif-*
+
+jobs:
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    name: Build Apptainer image
+    permissions:
+        contents: read
+        packages: write
+    steps:
+      - name: Install Apptainer
+        run: deb=$(curl -w "%{filename_effective}" -LO https://github.com/apptainer/apptainer/releases/download/v1.2.4/apptainer_1.2.4_amd64.deb) && sudo apt install -y "./$deb"; rm -f "$deb"; unset deb
+      - name: Check out code for the container build
+        uses: actions/checkout@v4
+      - name: Build Container
+        run: |
+          cont_name="${GITHUB_REF_NAME#sif-}"
+          echo "Container name is ${cont_name:-}."
+          [ -d "${cont_name:-}" ] || exit 1
+          pushd "${cont_name}" && apptainer build --fakeroot --fix-perms --warn-unused-build-args --build-arg ORAS_REPO="${{ github.repository }}" ../${cont_name}.sif Singularity && popd
+          tag="${tag:-latest}"
+          echo "Tag is $tag."
+          echo "tag=$tag" >> $GITHUB_ENV
+          echo "cont_name=$cont_name" >> $GITHUB_ENV
+          popd
+      - name: Login and Deploy Container
+        run: |
+          [ -r "${cont_name}.sif" ] || exit 1
+          apptainer remote login -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} oras://ghcr.io
+          apptainer push "${cont_name}.sif" oras://ghcr.io/${{ github.repository }}/${cont_name}:${tag}
+          rm -f "${cont_name}.sif"
+

@@ -1,8 +1,8 @@
-Bootstrap: localimage
-From: {{CONTAINERDIR}}/ubuntu22.04_turbovnc.sif
+Bootstrap: oras
+From: oras://{{ORAS_REPO}}/ubuntu22.04_turbovnc:latest
 
 %arguments
-	CONTAINERDIR=../
+	ORAS_REPO=ghcr.io/uw-psych/hyakvnc_apptainer
 	FREESURFER_DEB=freesurfer.deb
 	FREESURFER_VERSION=7.4.1
 	FREESURFER_HOME=/usr/local/freesurfer/{{FREESURFER_VERSION}}
@@ -11,16 +11,8 @@ From: {{CONTAINERDIR}}/ubuntu22.04_turbovnc.sif
 %help
 	This is an Apptainer container of Ubuntu 22.04 with TurboVNC and FreeSurfer installed.
 
-%setup 
-	f="{{FREESURFER_DEB}}"
-	if [ -r "$f" ]; then
-		echo "Using pre-downloaded freesurfer binary package at ${f:-}!"
-		cp "${f:-}" "${APPTAINER_ROOTFS}/freesurfer.deb"
-	else
-		echo "Did not find pre-downloaded freesurfer binary package at location ${f:-}"
-	fi
-
 %files
+	../scripts/install-freesurfer.sh /opt/install-freesurfer.sh
 	freeview.desktop /usr/share/applications/freeview.desktop
 
 %environment freesurfer
@@ -41,51 +33,29 @@ From: {{CONTAINERDIR}}/ubuntu22.04_turbovnc.sif
     export MNI_PERL5LIB="$MINC_LIB_DIR/perl5/5.8.5" \
     export PATH="$FREESURFER_HOME/bin:$FREESURFER_HOME/tktools:$MINC_BIN_DIR:$PATH"
 	export SHELL="/bin/bash"
+	export LC_ALL='C.UTF-8'
+	export LANG='C.UTF-8'
 
 %post
+	# Enable exit on error:
+	set -e
+
+	# Trace shell commands:
+	set -x
+
 	export FREESURFER_HOME="{{FREESURFER_HOME}}"
 	export DEBIAN_FRONTEND=noninteractive
 	export LC_ALL='C.UTF-8'
 	export LANG='C.UTF-8'
 	
-	# Enable exit on error:
-	set -e
-
 	# Update apt:
 	apt-get update --yes --quiet
 
-	# Download freesurfer binary package if not exists:
-	if [ ! -r /freesurfer.deb ]; then
-		echo "Not using pre-downloaded freesurfer binary package!"
-		FREESURFER_DL_URL="{{FREESURFER_DL_URL}}"
-		if [ -n "${FREESURFER_DL_URL:-}" ]; then 
-			echo "Downloading freesurfer binary package from "${FREESURFER_DL_URL}"..."
-			curl -L -o /freesurfer.deb "${FREESURFER_DL_URL}" || exit 1
-		else
-			echo "FREESURFER_DL_URL is not set. Don't know where to download freesurfer binary package from. Exiting."
-			exit 1
-		fi
-	else
-		echo "Using pre-downloaded freesurfer binary package."
-	fi
-
-	# Disable exit on error so dpkg --install can run without exiting due to dependencies:
-	set +e
-
-	# Create necessary directories:
-	mkdir -p "$FREESURFER_HOME"
-
 	# Install freesurfer:
-	dpkg --install /freesurfer.deb
+	/opt/install-freesurfer.sh && echo "Installed freesurfer" || exit 1
 
-	# Fix dependencies:
-	apt-get --fix-broken install --yes --quiet --no-install-recommends
-
-	# Enable exit on error:
-	set -e
-
-	# Clean up freesurfer binary package:
-	rm -f /freesurfer.deb && echo "Removed freesurfer binary download"
+	# Remove freesurfer installer:
+	rm -f /opt/install-freesurfer.sh
 
 	# Clean up packages:
 	apt-get clean --yes --quiet && rm -rf /var/lib/apt/lists/*
