@@ -75,7 +75,7 @@ fi
 }
 
 echo "Downloading ${FREESURFER_DOWNLOAD_URL}..."
-dlpath=$(curl -w "%{filename_effective}" -fLO "${FREESURFER_DOWNLOAD_URL}")
+dlpath=$(curl -w "%{filename_effective}" -fsSLO "${FREESURFER_DOWNLOAD_URL}")
 trap 'rm -f "${dlpath:-}"' INT QUIT TERM EXIT
 
 if [ -r "${dlpath}" ]; then
