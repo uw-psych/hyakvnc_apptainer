@@ -24,7 +24,7 @@ jobs:
           echo "Container name is $cont_name."
           [ -d "${cont_name:-}" ] || exit 1
           pushd "${cont_name}"
-          apptainer build --fakeroot --fix-perms --warn-unused-build-args --build-arg ORAS_REPO="${{ github.repository }}" ../${cont_name}.sif Singularity
+          apptainer build --fakeroot --fix-perms --warn-unused-build-args --build-arg ORAS_REPO="ghcr.io/${{ github.repository }}" ../${cont_name}.sif Singularity
           popd
           tag="${tag:-latest}"
           echo "Tag is $tag."
