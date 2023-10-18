@@ -35,7 +35,7 @@ if [ -z "${TURBOVNC_DOWNLOAD_URL:-}" ]; then
 fi
 
 echo "Downloading ${TURBOVNC_DOWNLOAD_URL}..."
-dlpath=$(curl -w "%{filename_effective}" -fLO "${TURBOVNC_DOWNLOAD_URL}")
+dlpath=$(curl -w "%{filename_effective}" -fsSLO "${TURBOVNC_DOWNLOAD_URL}")
 trap 'rm -f "${dlpath:-}"' INT QUIT TERM EXIT
 
 if [ -r "${dlpath}" ]; then
