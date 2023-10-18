@@ -15,7 +15,7 @@ jobs:
       - name: Delete huge unnecessary tools folder
         run: rm -rf /opt/hostedtoolcache; echo "Done removing /opt/hostedtoolcache"
       - name: Delete .NET, Android, Haskell tools to free space
-        run: rm -rf /usr/share/dotnet; rm -rf /usr/local/lib/android; rm -rf /opt/ghc; echo "Done removing .NET, Android, and Haskell tools."
+        run: rm -rf /usr/share/dotnet; rm -rf /opt/ghc; echo "Done removing .NET, Android, and Haskell tools."
       - name: Install Apptainer
         run: deb=$(curl -w "%{filename_effective}" -LO https://github.com/apptainer/apptainer/releases/download/v1.2.4/apptainer_1.2.4_amd64.deb) && sudo apt install -y "./$deb"; rm -f "$deb"; unset deb
       - name: Check out code for the container build
