@@ -13,7 +13,7 @@ fi
 
 if [ -z "${FREESURFER_DOWNLOAD_URL:-}" ]; then
 	if command -v dpkg >/dev/null 2>&1; then
-		# Is Debian/Ubuntu. Package filename looks like turbovnc_3.0.91_arm64.deb
+		# Is Debian/Ubuntu.
 		arch="$(dpkg --print-architecture)"
 		if [ -r /etc/os-release ]; then
 			. /etc/os-release
@@ -38,7 +38,7 @@ if [ -z "${FREESURFER_DOWNLOAD_URL:-}" ]; then
 		}
 		filename="freesurfer_ubuntu${ubuntu_major_version}-${FREESURFER_VERSION}_${arch}.deb"
 	elif command -v yum >/dev/null 2>&1; then
-		# Is RHEL/CentOS/Rocky. Package filename looks like turbovnc-3.0.91.x86_64.rpm
+		# Is RHEL/CentOS/Rocky
 		arch="$(uname -m)"
 		if [ -r /etc/os-release ]; then
 			. /etc/os-release
@@ -69,8 +69,13 @@ if [ -z "${FREESURFER_DOWNLOAD_URL:-}" ]; then
 	FREESURFER_DOWNLOAD_URL="${FREESURFER_DOWNLOAD_ROOT}/${filename}"
 fi
 
-echo "Downloading ${TURBOVNC_DOWNLOAD_URL}..."
-dlpath=$(curl -w "%{filename_effective}" -fLO "${TURBOVNC_DOWNLOAD_URL}")
+[ -z "${FREESURFER_DOWNLOAD_URL:-}" ] && {
+	echo >&2 "error: cannot determine download URL"
+	exit 1
+}
+
+echo "Downloading ${FREESURFER_DOWNLOAD_URL}..."
+dlpath=$(curl -w "%{filename_effective}" -fLO "${FREESURFER_DOWNLOAD_URL}")
 trap 'rm -f "${dlpath:-}"' INT QUIT TERM EXIT
 
 if [ -r "${dlpath}" ]; then
