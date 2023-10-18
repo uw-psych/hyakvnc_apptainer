@@ -1,6 +1,6 @@
 
 Bootstrap: oras
-From: oras://{{ORAS_REPO}}/ubuntu22.04_interactive:latest
+From: {{ORAS_REPO}}/ubuntu22.04_interactive:latest
 
 %arguments
 	ORAS_REPO=ghcr.io/uw-psych/hyakvnc_apptainer
