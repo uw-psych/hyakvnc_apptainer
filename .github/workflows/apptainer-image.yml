@@ -27,8 +27,10 @@ jobs:
           [ -d "${cont_name:-}" ] || exit 1
           pushd "${cont_name}"
           apptainer build --fakeroot --fix-perms --warn-unused-build-args --build-arg ORAS_REPO="ghcr.io/${{ github.repository }}" ../${cont_name}.sif Singularity
+          echo "Built ${cont_name}.sif"
           popd
           apptainer cache clean -f
+          echo "Cleaned Apptainer cache"
           tag="${tag:-latest}"
           echo "Tag is $tag."
           echo "tag=$tag" >> $GITHUB_ENV
@@ -37,6 +39,7 @@ jobs:
         run: |
           [ -r "${cont_name}.sif" ] || exit 1
           apptainer remote login -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} oras://ghcr.io
+          echo "Pushing ${cont_name}.sif to ghcr.io/${{ github.repository }}/${cont_name}:${tag}"
           apptainer push "${cont_name}.sif" oras://ghcr.io/${{ github.repository }}/${cont_name}:${tag}
           rm -f "${cont_name}.sif"
 
