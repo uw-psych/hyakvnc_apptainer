@@ -12,6 +12,8 @@ jobs:
       contents: read
       packages: write
     steps:
+      - name: Check out code for the container build
+        uses: actions/checkout@v4
       - name: Get container name
         run: |
           cont_name=$(echo "${GITHUB_REF_NAME:-}" | sed -E 's/^sif-//; s/-.*$//')
@@ -33,8 +35,6 @@ jobs:
           echo "Disk space after:" && df -h
       - name: Install Apptainer
         run: deb=$(curl -w "%{filename_effective}" -LO https://github.com/apptainer/apptainer/releases/download/v1.2.4/apptainer_1.2.4_amd64.deb) && sudo dpkg --install --force-depends "${deb}" && sudo apt-get install --fix-broken --yes --quiet; rm -f "$deb"; unset deb; sudo apt-get clean -yq
-      - name: Check out code for the container build
-        uses: actions/checkout@v4
       - name: Build Container
         run: |
           echo "Disk space before:" && df -h
