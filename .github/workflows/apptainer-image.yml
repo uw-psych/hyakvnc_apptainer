@@ -12,7 +12,16 @@ jobs:
       contents: read
       packages: write
     steps:
-      - name: Delete huge unnecessary tools folder
+      - name: Get container name
+        run: |
+          cont_name=$(echo "${GITHUB_REF_NAME:-}" | sed -E 's/^sif-//; s/-.*$//')
+          echo "Container name is ${cont_name:-}"
+          if [ ! -r "${cont_name:-}/Singularity" ]; then
+            echo "No container named ${cont_name:-} found."
+            exit 1
+          fi
+          echo "cont_name=$cont_name" >> $GITHUB_ENV
+      - name: Delete GitHub AGENT_TOOLSDIRECTORY to free space
         run: |
           echo "Disk space before:" && df -h
           sudo rm -rf /opt/hostedtoolcache; echo "Done removing /opt/hostedtoolcache"
@@ -29,10 +38,8 @@ jobs:
       - name: Build Container
         run: |
           echo "Disk space before:" && df -h
-          cont_name=$(echo "${GITHUB_REF_NAME:-}" | sed -E 's/^sif-//; s/-.*$//')
-          echo "Container name is $cont_name."
-          [ -d "${cont_name:-}" ] || exit 1
           pushd "${cont_name}"
+          echo "Building ${cont_name}.sif"
           apptainer build --fakeroot --fix-perms --warn-unused-build-args --build-arg BOOTSTRAP_SOURCE=oras BOOTSTRAP_REPO="ghcr.io/${{ github.repository }}" ../${cont_name}.sif Singularity
           echo "Built ${cont_name}.sif"
           popd
@@ -41,7 +48,6 @@ jobs:
           tag="${tag:-latest}"
           echo "Tag is $tag."
           echo "tag=$tag" >> $GITHUB_ENV
-          echo "cont_name=$cont_name" >> $GITHUB_ENV
           echo "Disk space after:" && df -h
       - name: Login and Deploy Container
         run: |
