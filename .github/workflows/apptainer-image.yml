@@ -18,10 +18,7 @@ jobs:
         run: |
           cont_name=$(echo "${GITHUB_REF_NAME:-}" | sed -E 's/^sif-//; s/-.*$//')
           echo "Container name is ${cont_name:-}"
-          if [ ! -r "${cont_name:-}/Singularity" ]; then
-            echo "No container named ${cont_name:-} found."
-            exit 1
-          fi
+          [ -d "${cont_name:-}" ] || { echo "No container named ${cont_name:-} found."; exit 1; }
           echo "cont_name=$cont_name" >> $GITHUB_ENV
       - name: Delete GitHub AGENT_TOOLSDIRECTORY to free space
         run: |
