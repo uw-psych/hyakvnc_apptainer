@@ -8,7 +8,7 @@ From: {{BOOTSTRAP_REPO}}/ubuntu22.04_interactive:latest
 
 %files
 	../scripts/install-turbovnc.sh /opt/install-turbovnc.sh
-	./configs/xfce4/xfcconf/xfce-perchannel-xml/*.xml /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/
+	./configs/xfce4/xfconf/xfce-perchannel-xml/*.xml /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/
 	./configs/xfce4/whiskermenu/defaults.rc /etc/xdg/xfce4/whiskermenu/
 	./configs/xfce4/terminal/terminalrc /etc/xdg/xfce4/terminal/
 
