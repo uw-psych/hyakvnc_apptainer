@@ -3,7 +3,8 @@ Bootstrap: oras
 From: {{ORAS_REPO}}/ubuntu22.04_interactive:latest
 
 %arguments
-	ORAS_REPO=ghcr.io/uw-psych/hyakvnc_apptainer
+	BOOTSTRAP_SOURCE=oras
+	BOOTSTRAP_REPO=ghcr.io/uw-psych/hyakvnc_apptainer
 
 %files
 	../scripts/install-turbovnc.sh /opt/install-turbovnc.sh
@@ -19,41 +20,27 @@ From: {{ORAS_REPO}}/ubuntu22.04_interactive:latest
 	export HYAKVNC_USER_SOCKET="${HYAKVNC_USER_BASE_DIR}/socket.uds"
 	export HYAKVNC_USER_LOGFILE="${HYAKVNC_USER_BASE_DIR}/vnc.log"
 	export HYAKVNC_USER_PASSWORDFILE="${HYAKVNC_USER_BASE_DIR}/passwd"
-	export HYAKVNC_USER_DISPLAY=":1"
-	export SHELL="${SHELL:-/bin/bash}"
+	export HYAKVNC_USER_DISPLAY=":10"
 
 %post
-	set -e
+	set -e # Exit on error
+	set -o pipefail # Exit on pipe error
+	set -x # Print commands as they are executed
 	export DEBIAN_FRONTEND=noninteractive
 	apt-get update --quiet
 	
 	# Install TurboVNC:
-	apt-get install --yes --quiet \
-		libpam0g \
-		libxt6 \
-		libxext6 \
-		xauth \
-		x11-xkb-utils \
-		xkb-data \
-		libturbojpeg
+	/opt/install-turbovnc.sh && echo "Installed TurboVNC" && || exit 1
+	rm -f /opt/install-turbovnc.sh
 	
-	/opt/install-turbovnc.sh && rm -f /opt/install-turbovnc.sh || exit 1
+	# Install XFCE:
+	apt-get install --yes --quiet \
+		xfce4
 
-	apt-get install -y -qq --no-install-recommends \
-		adwaita-icon-theme \
-		at-spi2-core \
-		bzip2 \
-		dbus \
+	# Install additional packages:
+	apt-get install --yes --quiet \
 		dbus-broker \
-		dbus-user-session \
-		dbus-x11 \
-		desktop-base \
-		desktop-file-utils \
 		evince \
-		file-roller \
-		fontconfig \
-		fontconfig-config \
-		fonts-dejavu-core \
 		fonts-droid-fallback \
 		fonts-freefont-ttf \
 		fonts-liberation \
@@ -61,43 +48,24 @@ From: {{ORAS_REPO}}/ubuntu22.04_interactive:latest
 		fonts-opensymbol \
 		fonts-powerline \
 		fonts-urw-base35 \
-		gnupg \
-		gpg-agent \
-		gsfonts \
-		gvfs \
+		gigolo \
 		gvfs-backends \
 		gvfs-fuse \
-		libfuse2 \
-		libnotify-bin \
-		novnc \
-		python3-dbus \
 		ristretto \
-		socat \
-		squashfs-tools \
 		sview \
-		tango-icon-theme \
-		thunar \
 		thunar-archive-plugin \
-		thunar-volman \
-		tumbler \
-		udisks2 \
 		xclip \
-		xdg-user-dirs \
 		xdg-user-dirs-gtk \
 		xdg-utils \
-		xfce4 \
+		xfce4-datetime-plugin \
+		xfce4-indicator-plugin \
 		xfce4-notifyd \
 		xfce4-screenshooter \
+		xfce4-taskmanager \
 		xfce4-terminal \
 		xfce4-whiskermenu-plugin \
-		xfonts-100dpi \
-		xfonts-base \
-		xfonts-encodings \
-		xfonts-scalable \
-		xfonts-utils \
-		xsel \
-		xz-utils \
-		zip
+		xfce4-xkb-plugin \
+		xsel
 	
 	# Clean up packages:
 	apt-get clean -y -qq && rm -rf /var/lib/apt/lists/*
