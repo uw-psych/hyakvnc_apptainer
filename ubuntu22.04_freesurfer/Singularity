@@ -1,12 +1,12 @@
-Bootstrap: oras
-From: {{ORAS_REPO}}/ubuntu22.04_turbovnc:latest
+Bootstrap: {{BOOTSTRAP_SOURCE}}
+From: {{BOOTSTRAP_REPO}}/ubuntu22.04_turbovnc:latest
 
 %arguments
-	ORAS_REPO=ghcr.io/uw-psych/hyakvnc_apptainer
+	BOOTSTRAP_SOURCE=oras
+	BOOTSTRAP_REPO=ghcr.io/uw-psych/hyakvnc_apptainer
 	FREESURFER_DEB=freesurfer.deb
 	FREESURFER_VERSION=7.4.1
 	FREESURFER_HOME=/usr/local/freesurfer/{{FREESURFER_VERSION}}
-	FREESURFER_DL_URL=https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/{{FREESURFER_VERSION}}/freesurfer_ubuntu22-{{FREESURFER_VERSION}}_amd64.deb
 
 %help
 	This is an Apptainer container of Ubuntu 22.04 with TurboVNC and FreeSurfer installed.
@@ -32,22 +32,13 @@ From: {{ORAS_REPO}}/ubuntu22.04_turbovnc:latest
 	export PERL5LIB="$MINC_LIB_DIR/perl5/5.8.5" \
     export MNI_PERL5LIB="$MINC_LIB_DIR/perl5/5.8.5" \
     export PATH="$FREESURFER_HOME/bin:$FREESURFER_HOME/tktools:$MINC_BIN_DIR:$PATH"
-	export SHELL="/bin/bash"
-	export LC_ALL='C.UTF-8'
-	export LANG='C.UTF-8'
 
 %post
-	# Enable exit on error:
-	set -e
-
-	# Trace shell commands:
-	set -x
-
-	export FREESURFER_HOME="{{FREESURFER_HOME}}"
+	set -e # Exit on error
+	set -o pipefail # Exit on pipe error
+	set -x # Print commands as they are executed
 	export DEBIAN_FRONTEND=noninteractive
-	export LC_ALL='C.UTF-8'
-	export LANG='C.UTF-8'
-	
+
 	# Update apt:
 	apt-get update --yes --quiet
 
@@ -58,4 +49,4 @@ From: {{ORAS_REPO}}/ubuntu22.04_turbovnc:latest
 	rm -f /opt/install-freesurfer.sh
 
 	# Clean up packages:
-	apt-get clean --yes --quiet && rm -rf /var/lib/apt/lists/*
+	apt-get clean -y -qq && rm -rf /var/lib/apt/lists/*
