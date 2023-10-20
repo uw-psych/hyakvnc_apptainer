@@ -23,7 +23,7 @@ jobs:
           sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/lib/android && echo "Done removing .NET, Android, and Haskell tools."
           echo "Disk space after:" && df -h
       - name: Install Apptainer
-        run: deb=$(curl -w "%{filename_effective}" -LO https://github.com/apptainer/apptainer/releases/download/v1.2.4/apptainer_1.2.4_amd64.deb) && sudo dpkg --install --force-depends "${deb}" && sudo apt-get install --fix-broken --yes --quiet; rm -f "$deb"; unset deb; sudo apt-cache clean -yq
+        run: deb=$(curl -w "%{filename_effective}" -LO https://github.com/apptainer/apptainer/releases/download/v1.2.4/apptainer_1.2.4_amd64.deb) && sudo dpkg --install --force-depends "${deb}" && sudo apt-get install --fix-broken --yes --quiet; rm -f "$deb"; unset deb; sudo apt-get clean -yq
       - name: Check out code for the container build
         uses: actions/checkout@v4
       - name: Build Container
