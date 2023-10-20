@@ -8,6 +8,9 @@ From: {{BOOTSTRAP_REPO}}/ubuntu22.04_interactive:latest
 
 %files
 	../scripts/install-turbovnc.sh /opt/install-turbovnc.sh
+	./configs/xfce4/xfcconf/xfce-perchannel-xml/*.xml /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/
+	./configs/xfce4/whiskermenu/defaults.rc /etc/xdg/xfce4/whiskermenu/
+	./configs/xfce4/terminal/terminalrc /etc/xdg/xfce4/terminal/
 
 %help
 	This is an Apptainer container of Ubuntu 22.04 with TurboVNC and XFCE installed.
@@ -26,7 +29,9 @@ From: {{BOOTSTRAP_REPO}}/ubuntu22.04_interactive:latest
 	set -e # Exit on error
 	set -x # Print commands as they are executed
 	export DEBIAN_FRONTEND=noninteractive
-	apt-get update --quiet
+
+	# Update package list:
+	apt-get update --yes --quiet
 	
 	# Install TurboVNC:
 	/opt/install-turbovnc.sh && echo "Installed TurboVNC" || exit 1
@@ -41,12 +46,10 @@ From: {{BOOTSTRAP_REPO}}/ubuntu22.04_interactive:latest
 		dbus-broker \
 		evince \
 		fonts-droid-fallback \
-		fonts-freefont-ttf \
 		fonts-liberation \
 		fonts-noto-mono \
 		fonts-opensymbol \
 		fonts-powerline \
-		fonts-urw-base35 \
 		gigolo \
 		gvfs-backends \
 		gvfs-fuse \
@@ -67,7 +70,7 @@ From: {{BOOTSTRAP_REPO}}/ubuntu22.04_interactive:latest
 		xsel
 	
 	# Clean up packages:
-	apt-get clean -y -qq && rm -rf /var/lib/apt/lists/*
+	apt-get clean --yes --quiet && rm -rf /var/lib/apt/lists/*
 
 	# Set up TurboVNC's base directory to be in the container's /vnc directory:
 	echo '$vncUserDir = "$ENV{HYAKVNC_USER_BASE_DIR}";' >> /etc/turbovncserver.conf

@@ -48,4 +48,4 @@ From: {{BOOTSTRAP_REPO}}/ubuntu22.04_turbovnc:latest
 	rm -f /opt/install-freesurfer.sh
 
 	# Clean up packages:
-	apt-get clean -y -qq && rm -rf /var/lib/apt/lists/*
+	apt-get clean --yes --quiet && rm -rf /var/lib/apt/lists/*
