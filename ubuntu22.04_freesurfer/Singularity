@@ -35,7 +35,6 @@ From: {{BOOTSTRAP_REPO}}/ubuntu22.04_turbovnc:latest
 
 %post
 	set -e # Exit on error
-	set -o pipefail # Exit on pipe error
 	set -x # Print commands as they are executed
 	export DEBIAN_FRONTEND=noninteractive
 
