@@ -29,7 +29,7 @@ jobs:
       - name: Build Container
         run: |
           echo "Disk space before:" && df -h
-          cont_name=$(echo "${GITHUB_REF_NAME:-}" | sed -E 's/^sif-//; s/-v[0-9]+[.].*$//')
+          cont_name=$(echo "${GITHUB_REF_NAME:-}" | sed -E 's/^sif-//; s/-.*$//')
           echo "Container name is $cont_name."
           [ -d "${cont_name:-}" ] || exit 1
           pushd "${cont_name}"
