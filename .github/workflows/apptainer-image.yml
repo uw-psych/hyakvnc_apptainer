@@ -2,7 +2,7 @@ name: Singularity Build
 on:
   push:
     tags:
-      - sif-*-v*.*
+      - sif-*-*
 
 jobs:
   build-and-push-image:
