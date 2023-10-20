@@ -1,6 +1,6 @@
 
-Bootstrap: oras
-From: {{ORAS_REPO}}/ubuntu22.04_interactive:latest
+Bootstrap: {{BOOTSTRAP_SOURCE}}
+From: {{BOOTSTRAP_REPO}}/ubuntu22.04_interactive:latest
 
 %arguments
 	BOOTSTRAP_SOURCE=oras
@@ -32,7 +32,7 @@ From: {{ORAS_REPO}}/ubuntu22.04_interactive:latest
 	# Install TurboVNC:
 	/opt/install-turbovnc.sh && echo "Installed TurboVNC" && || exit 1
 	rm -f /opt/install-turbovnc.sh
-	
+
 	# Install XFCE:
 	apt-get install --yes --quiet \
 		xfce4
