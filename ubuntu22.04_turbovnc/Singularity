@@ -29,7 +29,7 @@ From: {{BOOTSTRAP_REPO}}/ubuntu22.04_interactive:latest
 	apt-get update --quiet
 	
 	# Install TurboVNC:
-	/opt/install-turbovnc.sh && echo "Installed TurboVNC" && || exit 1
+	/opt/install-turbovnc.sh && echo "Installed TurboVNC" || exit 1
 	rm -f /opt/install-turbovnc.sh
 
 	# Install XFCE:
