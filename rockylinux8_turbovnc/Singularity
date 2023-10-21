@@ -9,7 +9,8 @@ From: {{ORAS_REPO}}/rockylinux8_interactive:latest
 	This is an Apptainer container of Rocky Linux 8 with TurboVNC and XFCE installed.
 
 %files
-	../scripts/install-turbovnc.sh /opt/install-turbovnc.sh
+	../_common/scripts/install-turbovnc.sh /opt/install-turbovnc.sh
+	../configs/xfce4 /configs-xfce4
 
 %environment
 	export LANG=C.UTF-8
@@ -97,6 +98,13 @@ From: {{ORAS_REPO}}/rockylinux8_interactive:latest
 	/opt/install-turbovnc.sh && rm -f /opt/install-turbovnc.sh || exit 1
 
 	dnf clean all
+
+	# Move XFCE configs to correct directories:
+	mkdir -p /etc/xdg/xfce4/xfconf/xfce-perchannel-xml /etc/xdg/xfce4/whiskermenu /etc/xdg/xfce4/terminal
+	mv /configs-xfce4/xfconf/xfce-perchannel-xml/*.xml /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/
+	mv /configs-xfce4/whiskermenu/defaults.rc /etc/xdg/xfce4/whiskermenu/
+	mv /configs-xfce4/terminal/terminalrc /etc/xdg/xfce4/terminal/
+	rm -rf /configs-xfce4
 	
 	# Set up TurboVNC's base directory to be in the container's /vnc directory:
 	echo '$vncUserDir = "$ENV{HYAKVNC_USER_BASE_DIR}";' >> /etc/turbovncserver.conf

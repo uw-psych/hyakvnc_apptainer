@@ -12,8 +12,8 @@ From: {{BOOTSTRAP_REPO}}/ubuntu22.04_turbovnc:latest
 	This is an Apptainer container of Ubuntu 22.04 with TurboVNC and FreeSurfer installed.
 
 %files
-	../scripts/install-freesurfer.sh /opt/install-freesurfer.sh
-	freeview.desktop /usr/share/applications/freeview.desktop
+	../_common/scripts/install-freesurfer.sh /opt/install-freesurfer.sh
+	../_common/configs/freeview.desktop /usr/share/applications/freeview.desktop
 
 %environment freesurfer
 	export FREESURFER_HOME={{FREESURFER_HOME}}
