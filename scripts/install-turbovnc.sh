@@ -26,7 +26,7 @@ if [ -z "${TURBOVNC_DOWNLOAD_URL:-}" ]; then
 	elif command -v yum >/dev/null 2>&1; then
 		# Is RHEL/CentOS/Rocky. Package filename looks like turbovnc-3.0.91.x86_64.rpm
 		arch="$(uname -m)"
-		filename="turbovnc_${TURBOVNC_VERSION}.${arch}.rpm"
+		filename="turbovnc-${TURBOVNC_VERSION}.${arch}.rpm"
 	else
 		echo >&2 "error: cannot determine architecture and package extension for this OS"
 		exit 1
