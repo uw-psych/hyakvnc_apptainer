@@ -64,6 +64,7 @@ From: ubuntu:22.04
 		apt-utils \
 		bash-completion \
 		bash-doc \
+		bc \
 		bzip2 \
 		curl \
 		findutils \
@@ -79,6 +80,7 @@ From: ubuntu:22.04
 		net-tools \
 		netcat-openbsd \
 		openssh-client \
+		slurm-client \
 		socat \
 		procps \
 		psmisc \
@@ -91,11 +93,11 @@ From: ubuntu:22.04
 	localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
 
 	# Install GitHub CLI:
-	curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
-	chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
-	echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null
-	apt-get update --quiet && apt-get install --yes --quiet gh
-
+	gh_deb_url="$(curl -fsSL 'https://api.github.com/repos/cli/cli/releases/latest' | grep -o -E -m 1 'https://github[.]com.*download[/].*gh_.*'"$(dpkg --print-architecture)"'.deb')"
+	[ -n "$gh_deb_url" ] || exit 1
+	curl -fsSL "$gh_deb_url" -o gh.deb && dpkg --install --force-depends gh.deb && apt-get install --yes --quiet --fix-broken
+	rm gh.deb
+	
 	# Clean up packages:
 	apt-get clean -y -qq && rm -rf /var/lib/apt/lists/*
 
