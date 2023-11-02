@@ -8,8 +8,9 @@ From: rockylinux:{{ROCKYLINUX_VERSION}}
 	This is an Apptainer container of Rocky Linux 8.5 with TurboVNC and XFCE installed.
 
 %files
-	../scripts/install-turbovnc.sh /opt/install-turbovnc.sh
-	../configs/xfce4 /configs-xfce4
+	../_common/scripts/install-turbovnc.sh /opt/install-turbovnc.sh
+	../_common/configs/sview.desktop /usr/share/applications/sview.desktop
+	../_common/configs/xfce4 /configs-xfce4
 
 %environment
 	export LANG=C.UTF-8

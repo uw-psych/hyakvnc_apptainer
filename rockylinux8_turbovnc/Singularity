@@ -1,16 +1,22 @@
 
-Bootstrap: oras
-From: {{ORAS_REPO}}/rockylinux8_interactive:latest
+Bootstrap: {{BOOTSTRAP_SOURCE}}
+From: {{BOOTSTRAP_REPO}}/ubuntu22.04_interactive:latest
 
 %arguments
-	ORAS_REPO=ghcr.io/uw-psych/hyakvnc_apptainer
+	BOOTSTRAP_SOURCE=oras
+	BOOTSTRAP_REPO=ghcr.io/uw-psych/hyakvnc_apptainer
+
+%files
+	../_common/scripts/install-turbovnc.sh /opt/install-turbovnc.sh
+	../_common/configs/sview.desktop /usr/share/applications/sview.desktop
+	../_common/configs/xfce4 /configs-xfce4
 
 %help
 	This is an Apptainer container of Rocky Linux 8 with TurboVNC and XFCE installed.
 
 %files
 	../_common/scripts/install-turbovnc.sh /opt/install-turbovnc.sh
-	../configs/xfce4 /configs-xfce4
+	../_common/configs/xfce4 /configs-xfce4
 
 %environment
 	export LANG=C.UTF-8
