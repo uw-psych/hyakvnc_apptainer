@@ -42,7 +42,7 @@ jobs:
           echo "Disk space before:" && df -h
           pushd "${cont_name}"
           echo "Building ${cont_name}.sif"
-          apptainer build --warn-unused-build-args --force --build-arg BOOTSTRAP_SOURCE=oras --build-arg BOOTSTRAP_FROM_REPO="ghcr.io/${{ github.repository }}" BOOTSTRAP_FROM_SUFFIX=":latest" ../${cont_name}.sif Singularity
+          apptainer build --warn-unused-build-args --force --build-arg BOOTSTRAP_SOURCE=oras --build-arg BOOTSTRAP_FROM_REPO="ghcr.io/${{ github.repository }}" --build-arg BOOTSTRAP_FROM_SUFFIX=":latest" ../${cont_name}.sif Singularity
           echo "Built ${cont_name}.sif"
           popd
           apptainer cache clean -f
