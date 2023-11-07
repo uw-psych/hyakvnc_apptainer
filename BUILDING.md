@@ -9,6 +9,7 @@ Before containers that depend on other containers can be built, the dependent co
 The easiest way to do this is:
 
 ```bash
-git tag -f sif-ubuntu22.04_turbovnc#0.0.1 # -f to overwrite the tag if it already exists
-git push -f origin sif-ubuntu22.04_turbovnc#0.0.1 # -f to overwrite the tag if it already exists
+git tag -f sif-ubuntu22.04_turbovnc#1.2345 # -f to overwrite the tag if it already exists
+git push -f origin sif-ubuntu22.04_turbovnc#1.2345 # -f to overwrite the tag if it already exists
 ```
+
