@@ -22,7 +22,7 @@ jobs:
           echo "cont_name=$cont_name" >> $GITHUB_ENV
           ref_name=${{ github.ref_name }}
           echo "ref_name is ${ref_name}."
-          img_tag"$(echo "${ref_name:-"sif--#latest"}" | sed -E '/.*#.*/!d; s/(.*)#(.+$)/\2/;1q')"
+          img_tag="$(echo "${ref_name:-"sif--#latest"}" | sed -E '/.*#.*/!d; s/(.*)#(.+$)/\2/;1q')"
           img_tag="${img_tag:-}"
           echo "img_tag is ${img_tag}."
           echo "img_tag=$img_tag" >> $GITHUB_ENV
