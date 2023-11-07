@@ -1,39 +1,25 @@
-Sample VNC Apptainer
-====================
+# hyakvnc_apptainer
 
-This repo contains sample Apptainer recipes along with a Makefile to build one
-on UW Hyak Klone.
+This repository contains Apptainer container recipes designed to work with [hyakvnc](https://github.com/uw-psych/hyakvnc).
 
-These Apptainer containers are used by `hyakvnc` to start a VNC session.
+Each container contains a VNC server and a desktop environment that can be used by connecting to the VNC server. The containers are designed to be run on UW Hyak Klone.
 
-Available Apptainers and their descendants:
+## Usage
+
+As these containers are primarily designed for `hyakvnc`, you should use that tool to start a VNC session. See the [hyakvnc README](https://github.com/uw-psych/hyakvnc) for more information.
+
+It is also possible to run these containers directly using `apptainer`:
+
+```bash
+# Download the container from GitHub Container Registry:
+apptainer pull hyakvnc-ubuntu22.04-vncserver_latest.sif oras://ghcr.io/uw-psych/hyakvnc-ubuntu22.04-vncserver:latest
+
+# Run the container:
+apptainer run hyakvnc-ubuntu22.04-vncserver_latest.sif 
+```
+
+## Available containers
 
 - `hyakvnc-ubuntu22.04-vncserver`: An Ubuntu 22.04 image with XFCE and the TurboVNC server installed and configured for `hyakvnc`
-	- `hyakvnc-ubuntu22.04-freesurfer`: + FreeSurfer
+  - `hyakvnc-ubuntu22.04-freesurfer`: + FreeSurfer 7.4.1
 
-
-These container recipes are provided to serve as examples and are meant to be
-modified to user needs.
-
-## Build Steps
-
-It is recommended that you run this from a directory on `/gscratch` rather than in your home directory (e.g., `/gscratch/<mygroup>/<myusername>/hyakvnc_apptainer`) -- otherwise, you might run out of disk space.
-
-Following guidance from [Hyak's Documentation](https://hyak.uw.edu/docs/tools/containers),
-We will need to build the container on an interactive work node:
-
-```bash
-salloc -A <mygroup> -p <mypartition> c -8 --mem=32G --time=2:00:00
-```
-
-Navigate to this directory then run `make` with the name of container specified:
-
-```bash
-cd /path/to/hyakvnc_apptainer
-make ubuntu22.04_turbovc
-```
-
-Some containers depend on others. They expect to be in the directory specified by the environment varialbe "$CONTAINERDIR".
-By default, CONTAINERDIR is set to the current directory.
-
-If successful, a container file ending with .sif can be found in the directory specified by the environment variable "$CONTAINERDIR", or the current directory.
