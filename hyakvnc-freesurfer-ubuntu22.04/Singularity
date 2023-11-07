@@ -6,7 +6,7 @@ From: {{BOOTSTRAP_FROM_REPO}}/hyakvnc-vncserver-ubuntu22.04{{BOOTSTRAP_FROM_SUFF
 	BOOTSTRAP_FROM_REPO=..
 	BOOTSTRAP_FROM_SUFFIX=.sif
 	FREESURFER_VERSION=7.4.1
-	FREESURFER_URL=https://surfer.nmr.mgh.harvard.edu/pub/dist/frefreeviewesurfer/{{FREESURFER_VERSION}}/freesurfer_ubuntu22-{{FREESURFER_VERSION}}_amd64.deb
+	FREESURFER_URL=https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/{{FREESURFER_VERSION}}/freesurfer_ubuntu22-{{FREESURFER_VERSION}}_amd64.deb
 	FREESURFER_DOWNLOAD_FILENAME=freesurfer_ubuntu22-{{FREESURFER_VERSION}}_amd64.deb
 
 %setup
