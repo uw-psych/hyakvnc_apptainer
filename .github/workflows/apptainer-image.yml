@@ -42,13 +42,21 @@ jobs:
           echo "Disk space before:" && df -h
           pushd "${cont_name}"
           echo "Building ${cont_name}.sif"
-          apptainer build --warn-unused-build-args --force --build-arg BOOTSTRAP_SOURCE=oras --build-arg BOOTSTRAP_FROM_REPO="ghcr.io/${{ github.repository }}" --build-arg BOOTSTRAP_FROM_SUFFIX=":latest" ../${cont_name}.sif Singularity
+          if grep -q 'From:.*hyakvnc-.*' Singularity; then
+            BASE_IMAGE_NAME="$(sed -E '/^\s*From:.*(hyakvnc-.*)/!d; s/.*(hyakvnc-[.A-Za-z0-9_-]+).*/\1/;1q' Singularity)"
+            echo "Base image name is $BASE_IMAGE_NAME"
+            BASE_IMAGE_TAG="$(git tag --sort=committerdate --list '*'"${BASE_IMAGE_NAME:-}"'*' |  sed -E '/.*#.*/!d; s/(.*)#(.+$)/\2/;1q')"
+          fi
+          BASE_IMAGE_TAG="${BASE_IMAGE_TAG:-latest}"
+          [ -n "${BASE_IMAGE_NAME:-}" ] && echo "Base image name is $BASE_IMAGE_NAME"
+          echo "Base image tag is ${BASE_IMAGE_TAG}"
+          apptainer build --warn-unused-build-args --force --build-arg BOOTSTRAP_SOURCE=oras --build-arg BOOTSTRAP_FROM_REPO="ghcr.io/${{ github.repository }}" --build-arg BOOTSTRAP_FROM_SUFFIX=":${BASE_IMAGE_TAG}" ../${cont_name}.sif Singularity
           echo "Built ${cont_name}.sif"
           popd
           apptainer cache clean -f
           echo "Cleaned Apptainer cache"
           tag="${tag:-latest}"
-          echo "Tag is $tag."
+          echo "Tag is ${tag}."
           echo "tag=$tag" >> $GITHUB_ENV
           echo "Disk space after:" && df -h
       - name: Login and Deploy Container
