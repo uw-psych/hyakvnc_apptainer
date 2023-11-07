@@ -22,11 +22,11 @@ jobs:
           echo "cont_name=$cont_name" >> $GITHUB_ENV
           ref_name={{ github.ref_name }}
           echo "ref_name is ${ref_name}."
-          tag="$(echo "${ref_name:-"sif-}" | sed -E '/.*#.*/!d; s/(.*)#(.+$)/\2/;1q')"
-          tag="${tag:-latest}"
-          echo "Tag is ${tag}."
-          echo "tag=$tag" >> $GITHUB_ENV
-          - name: Delete GitHub AGENT_TOOLSDIRECTORY to free space
+          img_tag"$(echo "${ref_name:-"sif-}" | sed -E '/.*#.*/!d; s/(.*)#(.+$)/\2/;1q')"
+          img_tag="${img_tag:-}"
+          echo "img_tag is ${img_tag}."
+          echo "img_tag=$img_tag" >> $GITHUB_ENV
+      - name: Delete GitHub AGENT_TOOLSDIRECTORY to free space
         run: |
           echo "Disk space before:" && df -h
           sudo rm -rf /opt/hostedtoolcache; echo "Done removing /opt/hostedtoolcache"
@@ -56,6 +56,7 @@ jobs:
           BASE_IMAGE_TAG="${BASE_IMAGE_TAG:-latest}"
           [ -n "${BASE_IMAGE_NAME:-}" ] && echo "Base image name is $BASE_IMAGE_NAME"
           echo "Base image tag is ${BASE_IMAGE_TAG}"
+          export IMAGE_TAG="${img_tag:-}"
           apptainer build --warn-unused-build-args --force --build-arg BOOTSTRAP_SOURCE=oras --build-arg BOOTSTRAP_FROM_REPO="ghcr.io/${{ github.repository }}" --build-arg BOOTSTRAP_FROM_SUFFIX=":${BASE_IMAGE_TAG}" ../${cont_name}.sif Singularity
           echo "Built ${cont_name}.sif"
           popd
