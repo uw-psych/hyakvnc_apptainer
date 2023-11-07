@@ -20,7 +20,13 @@ jobs:
           echo "Container name is ${cont_name:-}"
           [ -d "${cont_name:-}" ] || { echo "No container named ${cont_name:-} found."; exit 1; }
           echo "cont_name=$cont_name" >> $GITHUB_ENV
-      - name: Delete GitHub AGENT_TOOLSDIRECTORY to free space
+          ref_name={{ github.ref_name }}
+          echo "ref_name is ${ref_name}."
+          tag="$(echo "${ref_name:-"sif-}" | sed -E '/.*#.*/!d; s/(.*)#(.+$)/\2/;1q')"
+          tag="${tag:-latest}"
+          echo "Tag is ${tag}."
+          echo "tag=$tag" >> $GITHUB_ENV
+          - name: Delete GitHub AGENT_TOOLSDIRECTORY to free space
         run: |
           echo "Disk space before:" && df -h
           sudo rm -rf /opt/hostedtoolcache; echo "Done removing /opt/hostedtoolcache"
@@ -55,9 +61,6 @@ jobs:
           popd
           apptainer cache clean -f
           echo "Cleaned Apptainer cache"
-          tag="${tag:-latest}"
-          echo "Tag is ${tag}."
-          echo "tag=$tag" >> $GITHUB_ENV
           echo "Disk space after:" && df -h
       - name: Login and Deploy Container
         run: |
