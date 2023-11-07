@@ -2,7 +2,7 @@ name: Singularity Build
 on:
   push:
     tags:
-      - sif-*-*
+      - sif-*#*
 
 jobs:
   build-and-push-image:
@@ -16,7 +16,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Get container name
         run: |
-          cont_name=$(echo "${GITHUB_REF_NAME:-}" | sed -E 's/^sif-//; s/-.*$//')
+          cont_name=$(echo "${GITHUB_REF_NAME:-}" | sed -E 's/^sif-//; s/#.*$//')
           echo "Container name is ${cont_name:-}"
           [ -d "${cont_name:-}" ] || { echo "No container named ${cont_name:-} found."; exit 1; }
           echo "cont_name=$cont_name" >> $GITHUB_ENV
@@ -24,20 +24,25 @@ jobs:
         run: |
           echo "Disk space before:" && df -h
           sudo rm -rf /opt/hostedtoolcache; echo "Done removing /opt/hostedtoolcache"
-          echo "Disk space after:" && df -h
       - name: Delete .NET, Android, Haskell tools to free space
         run: |
           echo "Disk space before:" && df -h
           sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/lib/android && echo "Done removing .NET, Android, and Haskell tools."
-          echo "Disk space after:" && df -h
       - name: Install Apptainer
         uses: maouw/github-action-apptainer-install@v1
+      # Cache curl downloads
+      - uses: actions/cache@v3
+        id: cache-setup-downloads
+        with:
+          path: |
+            **/*.deb
+          key: ${{ runner.os }}
       - name: Build Container
         run: |
           echo "Disk space before:" && df -h
           pushd "${cont_name}"
           echo "Building ${cont_name}.sif"
-          apptainer build --fakeroot --fix-perms --warn-unused-build-args --build-arg BOOTSTRAP_SOURCE=oras --build-arg BOOTSTRAP_REPO="ghcr.io/${{ github.repository }}" ../${cont_name}.sif Singularity
+          apptainer build --warn-unused-build-args --force --build-arg BOOTSTRAP_SOURCE=oras --build-arg BOOTSTRAP_FROM_REPO="ghcr.io/${{ github.repository }}" BOOTSTRAP_FROM_SUFFIX=":latest" ../${cont_name}.sif Singularity
           echo "Built ${cont_name}.sif"
           popd
           apptainer cache clean -f
@@ -48,7 +53,7 @@ jobs:
           echo "Disk space after:" && df -h
       - name: Login and Deploy Container
         run: |
-          [ -r "${cont_name}.sif" ] || exit 1
+          [ -r "${cont_name}.sif" ] || { echo "No container named ${cont_name}.sif found."; exit 1; }
           apptainer remote login -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} oras://ghcr.io
           echo "Pushing ${cont_name}.sif to ghcr.io/${{ github.repository }}/${cont_name}:${tag}"
           apptainer push "${cont_name}.sif" oras://ghcr.io/${{ github.repository }}/${cont_name}:${tag}
