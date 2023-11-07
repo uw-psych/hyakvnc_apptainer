@@ -2,4 +2,5 @@
 .vscode/
 .history/
 .idea/
-
+*.deb
+*.tar.gz

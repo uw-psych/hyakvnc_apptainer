@@ -8,18 +8,9 @@ These Apptainer containers are used by `hyakvnc` to start a VNC session.
 
 Available Apptainers and their descendants:
 
-- ~~`ubuntu20.04_min`~~
-- ~~`ubuntu20.04`~~
-- ~~`rockylinux8_min`~~
-- ~~``rockylinux8`~~
-- `ubuntu22.04_interactive`: An basic command-line starter image for interactive use
-	- `ubuntu22.04_turbovnc`: + TurboVNC
-		- `ubuntu22.04_xubuntu`: Ubuntu with most of Xubuntu tools installed
-			-  `ubuntu22.04_xubuntu_freesurfer`: + FreeSurfer
+- `hyakvnc-ubuntu22.04-vncserver`: An Ubuntu 22.04 image with XFCE and the TurboVNC server installed and configured for `hyakvnc`
+	- `hyakvnc-ubuntu22.04-freesurfer`: + FreeSurfer
 
-
-~~Minimized/barebones container recipes, suffixed with `_min`, are provided with
-XFCE4, vncserver, and dependencies to run Lmod and build/run Apptainers.~~
 
 These container recipes are provided to serve as examples and are meant to be
 modified to user needs.
@@ -39,7 +30,7 @@ Navigate to this directory then run `make` with the name of container specified:
 
 ```bash
 cd /path/to/hyakvnc_apptainer
-make ubuntu22.04_turbovc 
+make ubuntu22.04_turbovc
 ```
 
 Some containers depend on others. They expect to be in the directory specified by the environment varialbe "$CONTAINERDIR".

@@ -41,10 +41,10 @@ trap 'rm -f "${dlpath:-}"' INT QUIT TERM EXIT
 if [ -r "${dlpath}" ]; then
 	if command -v dpkg >/dev/null 2>&1; then
 		# Is Debian/Ubuntu
-		dpkg --install --force-depends "${dlpath:-}" && apt-get install --fix-broken --yes --quiet && export success=1
+		dpkg --install --force-depends "${dlpath:-}" && apt-get install --fix-broken --yes --quiet && success=1
 	elif command -v yum >/dev/null 2>&1; then
 		# Is RHEL/CentOS/Rocky
-		yum install -y -q "${dlpath}" && export success=1 || echo >&2 "warning: failed to install ${dlpath} via yum"
+		yum install -y -q "${dlpath}" && success=1 || echo >&2 "warning: failed to install ${dlpath} via yum"
 	else
 		echo >&2 "Cannot determine package manager for this OS"
 	fi

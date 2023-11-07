@@ -1,5 +1,0 @@
-[Desktop Entry]
-Name=sview
-Exec=sview
-Type=Application
-Comment=Graphical user interface to view and modify Slurm state.
