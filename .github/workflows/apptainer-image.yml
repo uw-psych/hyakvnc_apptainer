@@ -20,7 +20,7 @@ jobs:
           echo "Container name is ${cont_name:-}"
           [ -d "${cont_name:-}" ] || { echo "No container named ${cont_name:-} found."; exit 1; }
           echo "cont_name=$cont_name" >> $GITHUB_ENV
-          ref_name={{ github.ref_name }}
+          ref_name=${{ github.ref_name }}
           echo "ref_name is ${ref_name}."
           img_tag"$(echo "${ref_name:-"sif-}" | sed -E '/.*#.*/!d; s/(.*)#(.+$)/\2/;1q')"
           img_tag="${img_tag:-}"
