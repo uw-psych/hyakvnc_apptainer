@@ -34,7 +34,8 @@ From: {{BOOTSTRAP_FROM_REPO}}/hyakvnc-vncserver-ubuntu22.04{{BOOTSTRAP_FROM_SUFF
 		IMAGE_VCS_URL="${IMAGE_VCS_URL:-$(git config --get remote.origin.url || true)}"
 		[ -z "${IMAGE_URL:-}" ] && [ -n "${IMAGE_VCS_URL:-}" ] && IMAGE_URL="${IMAGE_VCS_URL%%.git}"
 		IMAGE_VCS_REF="${IMAGE_VCS_REF:-$(git rev-parse --short HEAD || true)}"
-		command -v sed >/dev/null 2>&1 && IMAGE_TAG="${IMAGE_TAG:-"$(git tag --points-at HEAD --list '*#*' --sort=-version:refname | sed 's/.*#//;1q')"}"
+		
+		command -v sed >/dev/null 2>&1 && IMAGE_TAG="${IMAGE_TAG:-"$(git tag --points-at HEAD --list '*@*' --sort=-"creatordate:iso" | sed 's/.*@//;1q')"}"
 		IMAGE_TAG="${IMAGE_TAG:-latest}"
 		IMAGE_TITLE="${IMAGE_TITLE:-"${PWD##*/}"}"
 		IMAGE_VERSION="${IMAGE_VERSION:-${IMAGE_TAG:-}}"

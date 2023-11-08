@@ -2,7 +2,7 @@ name: Singularity Build
 on:
   push:
     tags:
-    - sif-*#*
+    - sif-*
 
 jobs:
   build-and-push-image:
@@ -24,7 +24,7 @@ jobs:
         ls -l
 
         # Get container name from tag
-        IMAGE_NAME="$(echo "${GITHUB_REF_NAME:-}" | sed -E 's/^sif-//; s/#.*$//')"
+        IMAGE_NAME="$(echo "${GITHUB_REF_NAME:-}" | sed -E 's/^sif-//; s/@.*$//')"
         echo "Container name is ${IMAGE_NAME:-}"
         [ -f "${IMAGE_NAME:-}/Singularity" ] || { echo "No container named ${IMAGE_NAME:-} found."; exit 1; }
         echo "IMAGE_NAME="${IMAGE_NAME}"" >> $GITHUB_ENV
@@ -34,8 +34,8 @@ jobs:
         ref_name="${{ github.ref_name }}"
         echo "ref_name is ${ref_name}."
 
-        # Get the image tag: the part after the # in the git tag
-        IMAGE_TAG="$(echo "${ref_name:-"sif--#latest"}" | sed -E '/.*#.*/!d; s/(.*)#(.+$)/\2/;1q')"
+        # Get the image tag: the part after the @ in the git tag
+        IMAGE_TAG="$(echo "${ref_name:-}" | sed -E '/.*@.*/!d; s/(.*)@(.+$)/\2/;1q')"
         IMAGE_TAG="${IMAGE_TAG:-}"
         echo "IMAGE_TAG is ${IMAGE_TAG}."
         echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_ENV
@@ -45,7 +45,7 @@ jobs:
           BASE_IMAGE_NAME="$(sed -E '/^\s*From:.*(hyakvnc-.*)/!d; s/.*(hyakvnc-[.A-Za-z0-9_-]+).*/\1/;1q' Singularity)"
           echo "Base image name is ${BASE_IMAGE_NAME}"
           echo "BASE_IMAGE_NAME=\"${BASE_IMAGE_NAME}\"" >> $GITHUB_ENV 
-          BASE_IMAGE_TAG="$(git tag --sort=-"creatordate:iso" --list '*'"${BASE_IMAGE_NAME:-}"'*' |  sed -E '/.*#.*/!d; s/(.*)#(.+$)/\2/;1q')"
+          BASE_IMAGE_TAG="$(git tag --sort=-"creatordate:iso" --list '*'"${BASE_IMAGE_NAME:-}"'*' |  sed -E '/.*@.*/!d; s/(.*)@(.+$)/\2/;1q')"
           BASE_IMAGE_TAG="${BASE_IMAGE_TAG:-latest}"
           echo "Base image tag is ${BASE_IMAGE_TAG}" && echo "BASE_IMAGE_TAG=\"${BASE_IMAGE_TAG}\"" >> $GITHUB_ENV
         fi
@@ -106,7 +106,7 @@ jobs:
         echo "Disk usage:"
         df -h
         echo "Pushing ${IMAGE_NAME}.sif to ghcr.io/${{ github.repository }}/${IMAGE_NAME}:${IMAGE_TAG}"
-        apptainer remote login -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} oras://ghcr.io
-        apptainer push "${IMAGE_NAME}.sif" oras://ghcr.io/${{ github.repository }}/${IMAGE_NAME}:${IMAGE_TAG} || { echo "Failed to push ${IMAGE_NAME}.sif to ghcr.io/${{ github.repository }}/${IMAGE_NAME}:${IMAGE_TAG}"; exit 1; }
+        apptainer remote login -u ${{ github.actor }} -p ${{ secrets.TOKEN }} oras://ghcr.io
+        apptainer push -U "${IMAGE_NAME}.sif" oras://ghcr.io/${{ github.repository }}/${IMAGE_NAME}:${IMAGE_TAG} || { echo "Failed to push ${IMAGE_NAME}.sif to ghcr.io/${{ github.repository }}/${IMAGE_NAME}:${IMAGE_TAG}"; exit 1; }
         echo "Pushed ${IMAGE_NAME}.sif to ghcr.io/${{ github.repository }}/${IMAGE_NAME}:${IMAGE_TAG}"
         
