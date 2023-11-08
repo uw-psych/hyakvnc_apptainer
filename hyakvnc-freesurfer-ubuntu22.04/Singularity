@@ -6,22 +6,23 @@ From: {{BOOTSTRAP_FROM_REPO}}/hyakvnc-vncserver-ubuntu22.04{{BOOTSTRAP_FROM_SUFF
 	BOOTSTRAP_FROM_REPO=..
 	BOOTSTRAP_FROM_SUFFIX=.sif
 	FREESURFER_VERSION=7.4.1
-	FREESURFER_URL=https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/{{FREESURFER_VERSION}}/freesurfer_ubuntu22-{{FREESURFER_VERSION}}_amd64.deb
+	FREESURFER_DOWNLOAD_URL=https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/{{FREESURFER_VERSION}}/freesurfer_ubuntu22-{{FREESURFER_VERSION}}_amd64.deb
 	FREESURFER_DOWNLOAD_FILENAME=freesurfer_ubuntu22-{{FREESURFER_VERSION}}_amd64.deb
+	SETUP_DOWNLOADS_DIR=../.setup-downloads
 
 %setup
-	
-	if ! [ -r "{{FREESURFER_DOWNLOAD_FILENAME}}" ]; then
+	mkdir -p "{{SETUP_DOWNLOADS_DIR}}"
+	if ! [ -r "{{SETUP_DOWNLOADS_DIR}}/{{FREESURFER_DOWNLOAD_FILENAME}}" ]; then
 		command -v curl >/dev/null 2>&1 || { echo "warning: curl not found!" >&2; exit 1; }
 		trap 'rm -f "tmp-{{FREESURFER_DOWNLOAD_FILENAME}}"' INT TERM HUP EXIT TSTP
 		curl --fail --fail-early --compressed --location \
 			--continue-at - \
 			--output "tmp-{{FREESURFER_DOWNLOAD_FILENAME}}" \
-			"{{FREESURFER_URL}}" || { echo "warning: curl failed!" >&2; exit 1; }
-		echo "Downloaded {{FREESURFER_DOWNLOAD_FILENAME}} from {{FREESURFER_URL}}."
-		mv -v "tmp-{{FREESURFER_DOWNLOAD_FILENAME}}" "{{FREESURFER_DOWNLOAD_FILENAME}}"
+			"{{FREESURFER_DOWNLOAD_URL}}" || { echo "warning: curl failed!" >&2; rm -fv "tmp-{{FREESURFER_DOWNLOAD_FILENAME}}"; exit 1; }
+		echo "Downloaded {{FREESURFER_DOWNLOAD_FILENAME}} from {{FREESURFER_DOWNLOAD_URL}}."
+		mv -fv "tmp-{{FREESURFER_DOWNLOAD_FILENAME}}" "{{SETUP_DOWNLOADS_DIR}}/{{FREESURFER_DOWNLOAD_FILENAME}}"
 	fi
-	ln -v "{{FREESURFER_DOWNLOAD_FILENAME}}" "${APPTAINER_ROOTFS}/freesurfer.deb" || { echo "warning: ln failed!" >&2; exit 1; }
+	ln -v "{{SETUP_DOWNLOADS_DIR}}/{{FREESURFER_DOWNLOAD_FILENAME}}" "${APPTAINER_ROOTFS}/freesurfer.deb" || { echo "warning: ln failed!" >&2; exit 1; }
 	
 	if command -v git >/dev/null 2>&1 && git tag 2>/dev/null; then
 		IMAGE_VCS_URL="${IMAGE_VCS_URL:-$(git config --get remote.origin.url || true)}"
