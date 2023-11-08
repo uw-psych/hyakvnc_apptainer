@@ -42,6 +42,7 @@ if [[ -n "${comment:-}" ]]; then
 fi
 
 for arg in "$@"; do
+	git_tag_args+=(-m "${arg}")
 	git_commit_args+=(-m "${arg}")
 done
 
@@ -66,6 +67,9 @@ fi
 
 git commit --allow-empty "${git_commit_args[@]}"
 git tag -fa "${GIT_TAG}" "${git_tag_args[@]}"
+
+echo 'Tag contents:'
+git tag -l --format='%(contents)' "$(git describe --tags --abbrev=0 || true)"
 
 if [[ -t 1 ]]; then
 	choice=y

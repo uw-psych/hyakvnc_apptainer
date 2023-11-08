@@ -14,4 +14,3 @@ git push -f origin sif-ubuntu22.04_turbovnc#1.2345 # -f to overwrite the tag if 
 ```
 
 You can also use the "tag-release.sh" script to do this.
-

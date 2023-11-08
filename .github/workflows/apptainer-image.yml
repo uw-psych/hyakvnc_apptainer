@@ -46,7 +46,7 @@ jobs:
         fi
         
         # Get build-arg-file contents
-        git tag -l --format='%(contents)' | tail +2 | grep -oE '^.+=.*$' >> .build-arg-file
+        git tag -l --format='%(contents)' "${ref_name}" | sed -E '/^.+=.*$/!d'>> .build-arg-file
         
         # Add bootstrap args for derived containers
         echo "BOOTSTRAP_SOURCE=oras" >> .build-arg-file
