@@ -22,12 +22,12 @@ jobs:
         pwd
         # Show the contents of the current directory
         ls -l
-        
+
         # Get container name from tag
         IMAGE_NAME="$(echo "${GITHUB_REF_NAME:-}" | sed -E 's/^sif-//; s/#.*$//')"
         echo "Container name is ${IMAGE_NAME:-}"
         [ -f "${IMAGE_NAME:-}/Singularity" ] || { echo "No container named ${IMAGE_NAME:-} found."; exit 1; }
-        echo "IMAGE_NAME=\"${IMAGE_NAME}\"" >> $GITHUB_ENV
+        echo "IMAGE_NAME="${IMAGE_NAME}"" >> $GITHUB_ENV
         
         # # Get tag of container from git tag (after #)
         # Get the git tag
@@ -38,7 +38,7 @@ jobs:
         IMAGE_TAG="$(echo "${ref_name:-"sif--#latest"}" | sed -E '/.*#.*/!d; s/(.*)#(.+$)/\2/;1q')"
         IMAGE_TAG="${IMAGE_TAG:-}"
         echo "IMAGE_TAG is ${IMAGE_TAG}."
-        echo "IMAGE_TAG=\"${IMAGE_TAG}\"" >> $GITHUB_ENV
+        echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_ENV
       
         # Get the base image name and tag from the container
         if grep -q 'From:.*hyakvnc-.*' "${IMAGE_NAME:-}"/Singularity; then
