@@ -35,12 +35,11 @@ jobs:
       
         # Get the base image name and tag from the container
         if grep -q 'From:.*hyakvnc-.*' "${IMAGE_NAME:-}"/Singularity; then
-          BASE_IMAGE_NAME="$(sed -E '/^\s*From:.*(hyaackvnc-.*)/!d; s/.*(hyakvnc-[.A-Za-z0-9_-]+).*/\1/;1q' Singularity)"
-          echo "Base image name is $BASE_IMAGE_NAME"
+          BASE_IMAGE_NAME="$(sed -E '/^\s*From:.*(hyakvnc-.*)/!d; s/.*(hyakvnc-[.A-Za-z0-9_-]+).*/\1/;1q' Singularity)"
+          echo "Base image name is ${BASE_IMAGE_NAME}"
           echo "BASE_IMAGE_NAME=\"${BASE_IMAGE_NAME}\"" >> "${GITHUB_ENV:-}" 
           BASE_IMAGE_TAG="$(git tag --sort=-"creatordate:iso" --list '*'"${BASE_IMAGE_NAME:-}"'*' |  sed -E '/.*#.*/!d; s/(.*)#(.+$)/\2/;1q')"
           BASE_IMAGE_TAG="${BASE_IMAGE_TAG:-latest}"
-          [ -n "${BASE_IMAGE_NAME:-}" ] && echo "Base image name is $BASE_IMAGE_NAME" && echo "BASE_IMAGE_NAME=\"${BASE_IMAGE_NAME}\"" >> "${GITHUB_ENV:-}"
           echo "Base image tag is ${BASE_IMAGE_TAG}" && echo "BASE_IMAGE_TAG=\"${BASE_IMAGE_TAG}\"" >> "${GITHUB_ENV:-}"
         fi
         
@@ -52,8 +51,13 @@ jobs:
         echo "BOOTSTRAP_FROM_REPO=ghcr.io/${{ github.repository }}" >> .build-arg-file
         echo "BOOTSTRAP_FROM_SUFFIX=:${BASE_IMAGE_TAG:-latest}" >> .build-arg-file
 
+        echo ".build-arg-file contents:"
+        cat .build-arg-file 2>/dev/null || echo "No build-arg-file found."
+
         # Get download URLs from build-arg-file for curl cache
-        grep "DOWNLOAD_URL' .build-arg-file > .setup-download-urls
+        grep 'DOWNLOAD_URL' .build-arg-file > .setup-download-urls
+        echo "Download URLs:"
+        cat .setup-download-urls 2>/dev/null || echo "No download URLs found."
       
     - name: Delete GitHub AGENT_TOOLSDIRECTORY to free space
       run: |
@@ -94,6 +98,6 @@ jobs:
         df -h
         echo "Pushing ${IMAGE_NAME}.sif to ghcr.io/${{ github.repository }}/${IMAGE_NAME}:${IMG_TAG}"
         apptainer remote login -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} oras://ghcr.io
-        apptainer push "${IMAGE_NAME}.sif" oras://ghcr.io/${{ github.repository }}/${IMAGE_NAME}:${IMG_TAG}
+        apptainer push "${IMAGE_NAME}.sif" "oras://ghcr.io/${{ github.repository }}/${IMAGE_NAME}:${IMG_TAG}"
         echo "Pushed ${IMAGE_NAME}.sif to ghcr.io/${{ github.repository }}/${IMAGE_NAME}:${IMG_TAG}"
         
