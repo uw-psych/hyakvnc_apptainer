@@ -18,6 +18,11 @@ jobs:
       run: |
         set -x
         [ -n "${BASH_VERSION:-}" ] && set -o pipefail
+        # Show the current directory
+        pwd
+        # Show the contents of the current directory
+        ls -l
+        
         # Get container name from tag
         IMAGE_NAME="$(echo "${GITHUB_REF_NAME:-}" | sed -E 's/^sif-//; s/#.*$//')"
         echo "Container name is ${IMAGE_NAME:-}"
