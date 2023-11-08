@@ -5,7 +5,7 @@ set -o pipefail
 [[ -n "${XDEBUG:-}" ]] && set -x
 
 TAG_PREFIX="sif-"
-IMAGE_TAG_SEP="#"
+IMAGE_TAG_SEP="@"
 
 IMAGE_NAME="${1:-}"
 [[ -n "${IMAGE_NAME:-}" ]] || { echo "IMAGE_NAME is empty" >&2; exit 1; }
