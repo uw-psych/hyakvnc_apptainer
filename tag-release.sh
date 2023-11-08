@@ -33,16 +33,20 @@ else
 	shift
 fi
 
+
 git_tag_args=()
+git_commit_args=()
 if [[ -n "${comment:-}" ]]; then
 	git_tag_args+=(-m "${comment}")
+	git_commit_args+=(-m "${comment}")
 fi
 
 for arg in "$@"; do
-	git_tag_args+=(-m "${arg}")
+	git_commit_args+=(-m "${arg}")
 done
 
-echo "git_tag_args: ${git_tag_args[*]}" >&2
+echo "git_tag_args: ${git_commit_args[*]}" >&2
+echo "git_commit_args: ${git_commit_args[*]}" >&2
 
 if git tag -l "${GIT_TAG:-}" | grep -q "^${GIT_TAG:-}$"; then
 	echo "git tag ${GIT_TAG} already exists" >&2
@@ -60,6 +64,7 @@ if [[ -t 1 ]]; then
 	[[ "${choice:-y}" =~ ^[Yy]$ ]] || exit 1
 fi
 
+git commit --allow-empty "${git_commit_args[@]}"
 git tag -fa "${GIT_TAG}" "${git_tag_args[@]}"
 
 if [[ -t 1 ]]; then

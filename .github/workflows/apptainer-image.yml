@@ -16,11 +16,13 @@ jobs:
       uses: actions/checkout@v4
     - name: Get container name
       run: |
+        set -x
+        [ -n "${BASH_VERSION:-}" ] && set -o pipefail
         # Get container name from tag
         IMAGE_NAME="$(echo "${GITHUB_REF_NAME:-}" | sed -E 's/^sif-//; s/#.*$//')"
         echo "Container name is ${IMAGE_NAME:-}"
         [ -f "${IMAGE_NAME:-}/Singularity" ] || { echo "No container named ${IMAGE_NAME:-} found."; exit 1; }
-        echo "IMAGE_NAME=\"${IMAGE_NAME}\"" >> "${GITHUB_ENV:-}"
+        echo "IMAGE_NAME=\"${IMAGE_NAME}\"" >> $GITHUB_ENV
         
         # # Get tag of container from git tag (after #)
         # Get the git tag
@@ -31,16 +33,16 @@ jobs:
         IMAGE_TAG="$(echo "${ref_name:-"sif--#latest"}" | sed -E '/.*#.*/!d; s/(.*)#(.+$)/\2/;1q')"
         IMAGE_TAG="${IMAGE_TAG:-}"
         echo "IMAGE_TAG is ${IMAGE_TAG}."
-        echo "IMAGE_TAG=\"${IMAGE_TAG}\"" >> "${GITHUB_ENV:-}"
+        echo "IMAGE_TAG=\"${IMAGE_TAG}\"" >> $GITHUB_ENV
       
         # Get the base image name and tag from the container
         if grep -q 'From:.*hyakvnc-.*' "${IMAGE_NAME:-}"/Singularity; then
           BASE_IMAGE_NAME="$(sed -E '/^\s*From:.*(hyakvnc-.*)/!d; s/.*(hyakvnc-[.A-Za-z0-9_-]+).*/\1/;1q' Singularity)"
           echo "Base image name is ${BASE_IMAGE_NAME}"
-          echo "BASE_IMAGE_NAME=\"${BASE_IMAGE_NAME}\"" >> "${GITHUB_ENV:-}" 
+          echo "BASE_IMAGE_NAME=\"${BASE_IMAGE_NAME}\"" >> $GITHUB_ENV 
           BASE_IMAGE_TAG="$(git tag --sort=-"creatordate:iso" --list '*'"${BASE_IMAGE_NAME:-}"'*' |  sed -E '/.*#.*/!d; s/(.*)#(.+$)/\2/;1q')"
           BASE_IMAGE_TAG="${BASE_IMAGE_TAG:-latest}"
-          echo "Base image tag is ${BASE_IMAGE_TAG}" && echo "BASE_IMAGE_TAG=\"${BASE_IMAGE_TAG}\"" >> "${GITHUB_ENV:-}"
+          echo "Base image tag is ${BASE_IMAGE_TAG}" && echo "BASE_IMAGE_TAG=\"${BASE_IMAGE_TAG}\"" >> $GITHUB_ENV
         fi
         
         # Get build-arg-file contents
