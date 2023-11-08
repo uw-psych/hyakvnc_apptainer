@@ -66,6 +66,7 @@ if [[ -t 1 ]]; then
 fi
 
 git commit --allow-empty "${git_commit_args[@]}"
+git push
 git tag -fa "${GIT_TAG}" "${git_tag_args[@]}"
 
 echo 'Tag contents:'
