@@ -57,7 +57,7 @@ jobs:
         cat .build-arg-file 2>/dev/null || echo "No build-arg-file found."
 
         # Get download URLs from build-arg-file for curl cache
-        grep 'DOWNLOAD_URL' .build-arg-file > .setup-download-urls
+        sed '/.*DOWNLOAD_URL=.*/!d' .build-arg-file > .setup-download-urls
         echo "Download URLs:"
         cat .setup-download-urls 2>/dev/null || echo "No download URLs found."
       
