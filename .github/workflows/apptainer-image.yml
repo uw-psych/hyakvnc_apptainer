@@ -105,8 +105,8 @@ jobs:
         du -h "${IMAGE_NAME:-}.sif"
         echo "Disk usage:"
         df -h
-        echo "Pushing ${IMAGE_NAME}.sif to ghcr.io/${{ github.repository }}/${IMAGE_NAME}:${IMG_TAG}"
+        echo "Pushing ${IMAGE_NAME}.sif to ghcr.io/${{ github.repository }}/${IMAGE_NAME}:${IMAGE_TAG}"
         apptainer remote login -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} oras://ghcr.io
-        apptainer push "${IMAGE_NAME}.sif" "oras://ghcr.io/${{ github.repository }}/${IMAGE_NAME}:${IMG_TAG}"
-        echo "Pushed ${IMAGE_NAME}.sif to ghcr.io/${{ github.repository }}/${IMAGE_NAME}:${IMG_TAG}"
+        apptainer push "${IMAGE_NAME}.sif" "oras://ghcr.io/${{ github.repository }}/${IMAGE_NAME}:${IMAGE_TAG}"
+        echo "Pushed ${IMAGE_NAME}.sif to ghcr.io/${{ github.repository }}/${IMAGE_NAME}:${IMAGE_TAG}"
         
