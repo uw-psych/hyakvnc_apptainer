@@ -44,6 +44,7 @@ From: {{BOOTSTRAP_FROM_REPO}}/hyakvnc-vncserver-ubuntu22.04{{BOOTSTRAP_FROM_SUFF
 		[ -n "${IMAGE_VCS_REF:-}" ] && echo "org.label-schema.vcs-ref \"${IMAGE_VCS_REF}\"" >> "${APPTAINER_ROOTFS}/.build.labels"
 		[ -n "${IMAGE_TITLE:-}" ] && echo "org.label-schema.title \"${IMAGE_TITLE}\"" >> "${APPTAINER_ROOTFS}/.build.labels"
 		[ -n "${IMAGE_VERSION:-}" ] && echo "org.label-schema.version \"${IMAGE_VERSION}\"" >> "${APPTAINER_ROOTFS}/.build.labels"
+		[ -n "${IMAGE_VCS_URL:-}" ] && echo "org.opencontainers.image.source \"${IMAGE_VCS_URL}\"" >> "${APPTAINER_ROOTFS}/.build.labels"
 	fi
 
 %labels
