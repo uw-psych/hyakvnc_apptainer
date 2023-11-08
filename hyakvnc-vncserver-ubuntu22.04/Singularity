@@ -2,7 +2,9 @@ Bootstrap: docker
 From: ubuntu:22.04
 
 %help
-	This is an Apptainer container of Ubuntu 22.04 for interactive use.
+	This is an Apptainer container of Ubuntu 22.04 with TurboVNC and XFCE installed.
+	It is intended to be used as a base for other containers that need a VNC server.
+	It is designed to be run on the Hyak cluster at the University of Washington with the hyakvnc script.
 
 %setup
 	if command -v git >/dev/null 2>&1 && git tag 2>/dev/null; then
@@ -19,6 +21,8 @@ From: ubuntu:22.04
 		[ -n "${IMAGE_VCS_REF:-}" ] && echo "org.label-schema.vcs-ref \"${IMAGE_VCS_REF}\"" >> "${APPTAINER_ROOTFS}/.build.labels"
 		[ -n "${IMAGE_TITLE:-}" ] && echo "org.label-schema.title \"${IMAGE_TITLE}\"" >> "${APPTAINER_ROOTFS}/.build.labels"
 		[ -n "${IMAGE_VERSION:-}" ] && echo "org.label-schema.version \"${IMAGE_VERSION}\"" >> "${APPTAINER_ROOTFS}/.build.labels"
+		[ -n "${IMAGE_VCS_URL:-}" ] && echo "org.opencontainers.image.source \"${IMAGE_VCS_URL}\"" >> "${APPTAINER_ROOTFS}/.build.labels"
+		
 	fi
 
 %labels

@@ -1,0 +1,49 @@
+Bootstrap: docker
+From: ubuntu:22.04
+
+%help
+	This is an Apptainer container of Ubuntu 22.04
+
+%setup
+	if command -v git >/dev/null 2>&1 && git tag 2>/dev/null; then
+		IMAGE_VCS_URL="${IMAGE_VCS_URL:-$(git config --get remote.origin.url || true)}"
+		[ -z "${IMAGE_URL:-}" ] && [ -n "${IMAGE_VCS_URL:-}" ] && IMAGE_URL="${IMAGE_VCS_URL%%.git}"
+		IMAGE_VCS_REF="${IMAGE_VCS_REF:-$(git rev-parse --short HEAD || true)}"
+		command -v sed >/dev/null 2>&1 && IMAGE_TAG="${IMAGE_TAG:-"$(git tag --points-at HEAD --list '*#*' --sort=-version:refname | sed 's/.*#//;1q')"}"
+		IMAGE_TAG="${IMAGE_TAG:-latest}"
+		IMAGE_TITLE="${IMAGE_TITLE:-"${PWD##*/}"}"
+		IMAGE_VERSION="${IMAGE_VERSION:-${IMAGE_TAG:-}}"
+
+		[ -n "${IMAGE_URL:-}" ] && echo "org.label-schema.url \"${IMAGE_URL}\"" >> "${APPTAINER_ROOTFS}/.build.labels"
+		[ -n "${IMAGE_VCS_URL:-}" ] && echo "org.label-schema.vcs-url \"${IMAGE_VCS_URL}\"" >> "${APPTAINER_ROOTFS}/.build.labels"
+		[ -n "${IMAGE_VCS_REF:-}" ] && echo "org.label-schema.vcs-ref \"${IMAGE_VCS_REF}\"" >> "${APPTAINER_ROOTFS}/.build.labels"
+		[ -n "${IMAGE_TITLE:-}" ] && echo "org.label-schema.title \"${IMAGE_TITLE}\"" >> "${APPTAINER_ROOTFS}/.build.labels"
+		[ -n "${IMAGE_VERSION:-}" ] && echo "org.label-schema.version \"${IMAGE_VERSION}\"" >> "${APPTAINER_ROOTFS}/.build.labels"
+		[ -n "${IMAGE_VCS_URL:-}" ] && echo "org.opencontainers.image.source \"${IMAGE_VCS_URL}\"" >> "${APPTAINER_ROOTFS}/.build.labels"
+		
+	fi
+
+%labels
+	org.label-schema.vendor "University of Washington Department of Psychology"
+	org.label-schema.description "A container to start a VNC server for hyakvnc"
+	org.opencontainers.image.authors "Altan Orhon (altan@uw.edu)"
+	hyakvnc_image_required_binds "/vnc"
+
+%environment
+	export LANG=en_US.utf8
+	export LC_ALL=en_US.utf8
+	export LC_COLLATE=C
+	export SHELL="${SHELL:-/bin/bash}"
+	export PATH="/opt/TurboVNC/bin:${PATH}"
+	export TVNC_WM=xfce-hyakvnc
+	export HYAKVNC_VNC_PASSWORD="${HYAKVNC_VNC_PASSWORD:-password}"
+	export HYAKVNC_VNC_DISPLAY="${HYAKVNC_VNC_DISPLAY:-:10}"
+	export HYAKVNC_VNC_DIR="${HYAKVNC_VNC_DIR:-/vnc}"
+
+%post
+	printenv
+
+%runscript
+	printenv
+
+
