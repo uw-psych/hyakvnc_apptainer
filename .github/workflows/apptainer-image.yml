@@ -83,6 +83,8 @@ jobs:
       
     - name: Build Container
       run: |
+        pwd
+        ls -l
         pushd "${IMAGE_NAME}"
         echo "Building ${IMAGE_NAME}.sif"
         apptainer build --warn-unused-build-args --force --build-arg-file ../.build-arg-file ../"${IMAGE_NAME}.sif" Singularity
