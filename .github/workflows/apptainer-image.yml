@@ -39,10 +39,11 @@ jobs:
         IMAGE_TAG="${IMAGE_TAG:-}"
         echo "IMAGE_TAG is ${IMAGE_TAG}."
         echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_ENV
-      
+
+        IMAGE_VCS_URL=
         # Get the base image name and tag from the container
         if grep -q 'From:.*hyakvnc-.*' "${IMAGE_NAME:-}"/Singularity; then
-          BASE_IMAGE_NAME="$(sed -E '/^\s*From:.*(hyakvnc-.*)/!d; s/.*(hyakvnc-[.A-Za-z0-9_-]+).*/\1/;1q' Singularity)"
+          BASE_IMAGE_NAME="$(sed -E '/^\s*From:.*(hyakvnc-.*)/!d; s/.*(hyakvnc-[.A-Za-z0-9_-]+).*/\1/;1q' "${IMAGE_NAME}/Singularity)"
           echo "Base image name is ${BASE_IMAGE_NAME}"
           echo "BASE_IMAGE_NAME=\"${BASE_IMAGE_NAME}\"" >> $GITHUB_ENV 
           BASE_IMAGE_TAG="$(git tag --sort=-"creatordate:iso" --list '*'"${BASE_IMAGE_NAME:-}"'*' |  sed -E '/.*@.*/!d; s/(.*)@(.+$)/\2/;1q')"
