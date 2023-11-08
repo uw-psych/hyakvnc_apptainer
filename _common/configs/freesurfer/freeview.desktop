@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=freeview
+Exec=start-freeview %F
+Type=Application
+Comment=Brain Volume and Surfaces viewer from FreeSurfer
+Categories=Science;Biology;MedicalSoftware;Graphics;3DGraphics;

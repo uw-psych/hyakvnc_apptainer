@@ -1,45 +1,25 @@
-Sample VNC Apptainer
-====================
+# hyakvnc_apptainer
 
-This repo contains sample Apptainer recipes along with a Makefile to build one
-on UW Hyak Klone.
+This repository contains Apptainer container recipes designed to work with [hyakvnc](https://github.com/uw-psych/hyakvnc).
 
-These Apptainer containers are used by `hyakvnc.py` to start a VNC session.
+Each container contains a VNC server and a desktop environment that can be used by connecting to the VNC server. The containers are designed to be run on UW Hyak Klone.
 
-Available Apptainers:
+## Usage
 
-- `ubuntu20.04_min`
-- `ubuntu20.04`
-- `rockylinux8_min`
-- `rockylinux8`
+As these containers are primarily designed for `hyakvnc`, you should use that tool to start a VNC session. See the [hyakvnc README](https://github.com/uw-psych/hyakvnc) for more information.
 
-Minimized/barebones container recipes, suffixed with `_min`, are provided with
-XFCE4, vncserver, and dependencies to run Lmod and build/run Apptainers.
-
-Standard recipes, without any suffix, provide additional tools and libraries
-required for **some** programs.
-
-These container recipes are provided to serve as examples and are meant to be
-modified to user needs.
-
-## Build Steps
-
-Following guidance from [Hyak's Documentation](https://hyak.uw.edu/docs/tools/containers),
-We will need to build the container on an interactive work node:
+It is also possible to run these containers directly using `apptainer`:
 
 ```bash
-salloc -A <mygroup> -p <mypartition> -N 1 -n2 --mem=10G --time=2:00:00
-# connect to allocated node. Example: ssh n3300
-ssh <node_name>
-module load apptainer/1.1.5
+# Download the container from GitHub Container Registry:
+apptainer pull hyakvnc-ubuntu22.04-vncserver_latest.sif oras://ghcr.io/uw-psych/hyakvnc-ubuntu22.04-vncserver:latest
+
+# Run the container:
+apptainer run hyakvnc-ubuntu22.04-vncserver_latest.sif 
 ```
 
-Navigate to this directory then run `make` with the name of container specified:
+## Available containers
 
-```bash
-cd /path/to/hyak_vnc_apptainer
-make CONT_NAME=rockylinux
-```
+- `hyakvnc-ubuntu22.04-vncserver`: An Ubuntu 22.04 image with XFCE and the TurboVNC server installed and configured for `hyakvnc`
+  - `hyakvnc-ubuntu22.04-freesurfer`: + FreeSurfer 7.4.1
 
-If successful, a container file ending with .sif can be found in the directory
-with the same name as the container.

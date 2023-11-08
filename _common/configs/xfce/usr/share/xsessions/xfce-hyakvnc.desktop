@@ -1,0 +1,8 @@
+[Desktop Entry]
+Version=1.0
+Name=HyakVNC Xfce TurboVNC Session
+Comment=Use this session to run Xfce as your desktop environment configured for hyakvnc
+Exec=/usr/local/bin/startxfce4-hyakvnc
+Icon=
+Type=Application
+DesktopNames=XFCE
