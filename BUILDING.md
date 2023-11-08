@@ -13,3 +13,5 @@ git tag -f sif-ubuntu22.04_turbovnc#1.2345 # -f to overwrite the tag if it alrea
 git push -f origin sif-ubuntu22.04_turbovnc#1.2345 # -f to overwrite the tag if it already exists
 ```
 
+You can also use the "tag-release.sh" script to do this.
+
