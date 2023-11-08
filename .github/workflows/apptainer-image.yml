@@ -92,7 +92,7 @@ jobs:
         ls -l
         pushd "${IMAGE_NAME}"
         echo "Building ${IMAGE_NAME}.sif"
-        apptainer build --warn-unused-build-args --force --build-arg-file ../.build-arg-file ../"${IMAGE_NAME}.sif" Singularity
+        apptainer build --warn-unused-build-args --force --build-arg-file ../.build-arg-file ../"${IMAGE_NAME}.sif" Singularity || { echo "Failed to build ${IMAGE_NAME}.sif"; exit 1; }
         echo "Built ${IMAGE_NAME}.sif"
         popd
         apptainer cache clean -f
@@ -107,6 +107,6 @@ jobs:
         df -h
         echo "Pushing ${IMAGE_NAME}.sif to ghcr.io/${{ github.repository }}/${IMAGE_NAME}:${IMAGE_TAG}"
         apptainer remote login -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} oras://ghcr.io
-        apptainer push "${IMAGE_NAME}.sif" "oras://ghcr.io/${{ github.repository }}/${IMAGE_NAME}:${IMAGE_TAG}"
+        apptainer push "${IMAGE_NAME}.sif" oras://ghcr.io/${{ github.repository }}/${IMAGE_NAME}:${IMAGE_TAG} || { echo "Failed to push ${IMAGE_NAME}.sif to ghcr.io/${{ github.repository }}/${IMAGE_NAME}:${IMAGE_TAG}"; exit 1; }
         echo "Pushed ${IMAGE_NAME}.sif to ghcr.io/${{ github.repository }}/${IMAGE_NAME}:${IMAGE_TAG}"
         
