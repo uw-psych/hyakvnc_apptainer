@@ -2,7 +2,7 @@ name: Singularity Build
 on:
   push:
     tags:
-      - sif-*#*
+    - sif-*#*
 
 jobs:
   build-and-push-image:
@@ -12,62 +12,88 @@ jobs:
       contents: read
       packages: write
     steps:
-      - name: Check out code for the container build
-        uses: actions/checkout@v4
-      - name: Get container name
-        run: |
-          cont_name=$(echo "${GITHUB_REF_NAME:-}" | sed -E 's/^sif-//; s/#.*$//')
-          echo "Container name is ${cont_name:-}"
-          [ -d "${cont_name:-}" ] || { echo "No container named ${cont_name:-} found."; exit 1; }
-          echo "cont_name=$cont_name" >> $GITHUB_ENV
-          ref_name=${{ github.ref_name }}
-          echo "ref_name is ${ref_name}."
-          img_tag="$(echo "${ref_name:-"sif--#latest"}" | sed -E '/.*#.*/!d; s/(.*)#(.+$)/\2/;1q')"
-          img_tag="${img_tag:-}"
-          echo "img_tag is ${img_tag}."
-          echo "img_tag=$img_tag" >> $GITHUB_ENV
-      - name: Delete GitHub AGENT_TOOLSDIRECTORY to free space
-        run: |
-          echo "Disk space before:" && df -h
-          sudo rm -rf /opt/hostedtoolcache; echo "Done removing /opt/hostedtoolcache"
-      - name: Delete .NET, Android, Haskell tools to free space
-        run: |
-          echo "Disk space before:" && df -h
-          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/lib/android && echo "Done removing .NET, Android, and Haskell tools."
-      - name: Install Apptainer
-        uses: maouw/github-action-apptainer-install@v1
-      # Cache curl downloads
-      - uses: actions/cache@v3
-        id: cache-setup-downloads
-        with:
-          path: |
-            **/*.deb
-          key: ${{ runner.os }}
-      - name: Build Container
-        run: |
-          echo "Disk space before:" && df -h
-          pushd "${cont_name}"
-          echo "Building ${cont_name}.sif"
-          if grep -q 'From:.*hyakvnc-.*' Singularity; then
-            BASE_IMAGE_NAME="$(sed -E '/^\s*From:.*(hyakvnc-.*)/!d; s/.*(hyakvnc-[.A-Za-z0-9_-]+).*/\1/;1q' Singularity)"
-            echo "Base image name is $BASE_IMAGE_NAME"
-            BASE_IMAGE_TAG="$(git tag --sort=committerdate --list '*'"${BASE_IMAGE_NAME:-}"'*' |  sed -E '/.*#.*/!d; s/(.*)#(.+$)/\2/;1q')"
-          fi
+    - name: Check out code for the container build
+      uses: actions/checkout@v4
+    - name: Get container name
+      run: |
+        # Get container name from tag
+        IMAGE_NAME="$(echo "${GITHUB_REF_NAME:-}" | sed -E 's/^sif-//; s/#.*$//')"
+        echo "Container name is ${IMAGE_NAME:-}"
+        [ -f "${IMAGE_NAME:-}/Singularity" ] || { echo "No container named ${IMAGE_NAME:-} found."; exit 1; }
+        echo "IMAGE_NAME=\"${IMAGE_NAME}\"" >> "${GITHUB_ENV:-}"
+        
+        # # Get tag of container from git tag (after #)
+        # Get the git tag
+        ref_name="${{ github.ref_name }}"
+        echo "ref_name is ${ref_name}."
+
+        # Get the image tag: the part after the # in the git tag
+        IMAGE_TAG="$(echo "${ref_name:-"sif--#latest"}" | sed -E '/.*#.*/!d; s/(.*)#(.+$)/\2/;1q')"
+        IMAGE_TAG="${IMAGE_TAG:-}"
+        echo "IMAGE_TAG is ${IMAGE_TAG}."
+        echo "IMAGE_TAG=\"${IMAGE_TAG}\"" >> "${GITHUB_ENV:-}"
+      
+        # Get the base image name and tag from the container
+        if grep -q 'From:.*hyakvnc-.*' "${IMAGE_NAME:-}"/Singularity; then
+          BASE_IMAGE_NAME="$(sed -E '/^\s*From:.*(hyaackvnc-.*)/!d; s/.*(hyakvnc-[.A-Za-z0-9_-]+).*/\1/;1q' Singularity)"
+          echo "Base image name is $BASE_IMAGE_NAME"
+          echo "BASE_IMAGE_NAME=\"${BASE_IMAGE_NAME}\"" >> "${GITHUB_ENV:-}" 
+          BASE_IMAGE_TAG="$(git tag --sort=-"creatordate:iso" --list '*'"${BASE_IMAGE_NAME:-}"'*' |  sed -E '/.*#.*/!d; s/(.*)#(.+$)/\2/;1q')"
           BASE_IMAGE_TAG="${BASE_IMAGE_TAG:-latest}"
-          [ -n "${BASE_IMAGE_NAME:-}" ] && echo "Base image name is $BASE_IMAGE_NAME"
-          echo "Base image tag is ${BASE_IMAGE_TAG}"
-          export IMAGE_TAG="${img_tag:-}"
-          apptainer build --warn-unused-build-args --force --build-arg BOOTSTRAP_SOURCE=oras --build-arg BOOTSTRAP_FROM_REPO="ghcr.io/${{ github.repository }}" --build-arg BOOTSTRAP_FROM_SUFFIX=":${BASE_IMAGE_TAG}" ../${cont_name}.sif Singularity
-          echo "Built ${cont_name}.sif"
-          popd
-          apptainer cache clean -f
-          echo "Cleaned Apptainer cache"
-          echo "Disk space after:" && df -h
-      - name: Login and Deploy Container
-        run: |
-          [ -r "${cont_name}.sif" ] || { echo "No container named ${cont_name}.sif found."; exit 1; }
-          apptainer remote login -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} oras://ghcr.io
-          echo "Pushing ${cont_name}.sif to ghcr.io/${{ github.repository }}/${cont_name}:${tag}"
-          apptainer push "${cont_name}.sif" oras://ghcr.io/${{ github.repository }}/${cont_name}:${tag}
-          echo "Pushed ${cont_name}.sif to ghcr.io/${{ github.repository }}/${cont_name}:${tag}"
-          rm -f "${cont_name}.sif"
+          [ -n "${BASE_IMAGE_NAME:-}" ] && echo "Base image name is $BASE_IMAGE_NAME" && echo "BASE_IMAGE_NAME=\"${BASE_IMAGE_NAME}\"" >> "${GITHUB_ENV:-}"
+          echo "Base image tag is ${BASE_IMAGE_TAG}" && echo "BASE_IMAGE_TAG=\"${BASE_IMAGE_TAG}\"" >> "${GITHUB_ENV:-}"
+        fi
+        
+        # Get build-arg-file contents
+        git tag -l --format='%(contents)' | tail +2 | grep -oE '^.+=.*$' >> .build-arg-file
+        
+        # Add bootstrap args for derived containers
+        echo "BOOTSTRAP_SOURCE=oras" >> .build-arg-file
+        echo "BOOTSTRAP_FROM_REPO=ghcr.io/${{ github.repository }}" >> .build-arg-file
+        echo "BOOTSTRAP_FROM_SUFFIX=:${BASE_IMAGE_TAG:-latest}" >> .build-arg-file
+
+        # Get download URLs from build-arg-file for curl cache
+        grep "DOWNLOAD_URL' .build-arg-file > .setup-download-urls
+      
+    - name: Delete GitHub AGENT_TOOLSDIRECTORY to free space
+      run: |
+        echo "Disk space before:" && df -h
+        sudo rm -rf /opt/hostedtoolcache; echo "Done removing /opt/hostedtoolcache"
+    - name: Delete .NET, Android, Haskell tools to free space
+      run: |
+        echo "Disk space before:" && df -h
+        sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/lib/android && echo "Done removing .NET, Android, and Haskell tools."
+      
+    - name: Install Apptainer
+      uses: maouw/github-action-apptainer-install@v1
+      
+    # Cache curl downloads
+    - uses: actions/cache@v3
+      id: cache-setup-downloads
+      with:
+        path: |
+          .setup-downloads/*
+        key: ${{ runner.os }}-${{hashFiles('.setup-download-urls')}}
+      
+    - name: Build Container
+      run: |
+        pushd "${IMAGE_NAME}"
+        echo "Building ${IMAGE_NAME}.sif"
+        apptainer build --warn-unused-build-args --force --build-arg-file ../.build-arg-file ../"${IMAGE_NAME}.sif" Singularity
+        echo "Built ${IMAGE_NAME}.sif"
+        popd
+        apptainer cache clean -f
+        echo "Cleaned Apptainer cache"
+        echo "Disk space after:" && df -h
+    - name: Login and Deploy Container
+      run: |
+        [ -r "${IMAGE_NAME:-}.sif" ] || { echo "No container named ${IMAGE_NAME:-}.sif found."; exit 1; }
+        echo "Container size:"
+        du -h "${IMAGE_NAME:-}.sif"
+        echo "Disk usage:"
+        df -h
+        echo "Pushing ${IMAGE_NAME}.sif to ghcr.io/${{ github.repository }}/${IMAGE_NAME}:${IMG_TAG}"
+        apptainer remote login -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} oras://ghcr.io
+        apptainer push "${IMAGE_NAME}.sif" oras://ghcr.io/${{ github.repository }}/${IMAGE_NAME}:${IMG_TAG}
+        echo "Pushed ${IMAGE_NAME}.sif to ghcr.io/${{ github.repository }}/${IMAGE_NAME}:${IMG_TAG}"
+        
